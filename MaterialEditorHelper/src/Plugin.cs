@@ -9,6 +9,7 @@ using ParadoxNotion.Serialization;
 using ChaCustom;
 
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 
@@ -30,7 +31,7 @@ namespace MaterialEditorHelper
 	{
 		public const string GUID = "madevil.kk.meh";
 		public const string PluginName = "Material Editor Helper";
-		public const string Version = "1.0.0.0";
+		public const string Version = "1.0.1.0";
 
 		internal static new ManualLogSource Logger;
 		internal static MaterialEditorHelper Instance;
@@ -40,6 +41,8 @@ namespace MaterialEditorHelper
 		internal static MakerDropdown ddList;
 		internal static List<string> ddListLabel = new List<string>() { "Renderer", "Shader", "Float Property", "Color Property", "Texture Property" };
 		internal static List<string> ddListNames = new List<string>() { "RendererPropertyList", "MaterialShaderList", "MaterialFloatPropertyList", "MaterialColorPropertyList", "MaterialTexturePropertyList" };
+
+		internal static ConfigEntry<int> CfgDropdown { get; set; }
 
 		private void Awake()
 		{
@@ -51,6 +54,8 @@ namespace MaterialEditorHelper
 
 		private void Start()
 		{
+			CfgDropdown = Config.Bind("General", "Dropdown", 0, new ConfigDescription("", null, new ConfigurationManagerAttributes { Browsable = false }));
+
 			BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.deathweasel.bepinex.materialeditor", out PluginInfo PluginInfo);
 			//System.Type MaterialEditorPluginBase = PluginInfo.Instance.GetType().Assembly.GetType("MaterialEditorAPI.MaterialEditorPluginBase");
 
@@ -61,7 +66,8 @@ namespace MaterialEditorHelper
 
 				MakerCategory category = new MakerCategory("05_ParameterTop", "tglMEHelper", MakerConstants.Parameter.Attribute.Position + 1, "MEH");
 
-				ddList = new MakerDropdown("List", ddListLabel.ToArray(), category, 0, this);
+				ddList = new MakerDropdown("List", ddListLabel.ToArray(), category, CfgDropdown.Value, this);
+				ddList.ValueChanged.Subscribe(value => CfgDropdown.Value = value);
 				ev.AddControl(ddList);
 
 				MakerButton btnPrint = new MakerButton("Print", category, Instance);
@@ -133,6 +139,106 @@ namespace MaterialEditorHelper
 
 				ev.AddControl(new MakerSeparator(category, this));
 
+				ev.AddControl(new MakerText("All Settings", category, this));
+
+				MakerButton btnExportAll = new MakerButton("Export", category, Instance);
+				ev.AddControl(btnExportAll);
+				btnExportAll.OnClick.AddListener(delegate
+				{
+					string ExportFilePath = Path.Combine(SavePath, "MaterialEditorHelper.json");
+					List<ObjectSetting> data = new List<ObjectSetting>();
+					foreach (var item in FetchList<RendererProperty>(pluginCtrl, ddListNames[0]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.RendererPropertyList.Add(item);
+					}
+					foreach (var item in FetchList<MaterialShader>(pluginCtrl, ddListNames[1]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.MaterialShaderList.Add(item);
+					}
+					foreach (var item in FetchList<MaterialFloatProperty>(pluginCtrl, ddListNames[2]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.MaterialFloatPropertyList.Add(item);
+					}
+					foreach (var item in FetchList<MaterialColorProperty>(pluginCtrl, ddListNames[3]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.MaterialColorPropertyList.Add(item);
+					}
+					foreach (var item in FetchList<MaterialTextureProperty>(pluginCtrl, ddListNames[4]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.MaterialTexturePropertyList.Add(item);
+					}
+					data = data.OrderBy(x => x.ObjectType).ThenBy(x => x.CoordinateIndex).ThenBy(x => x.Slot).ToList();
+					string json = JSONSerializer.Serialize(data.GetType(), data, true);
+					File.WriteAllText(ExportFilePath, json);
+					Logger.LogMessage($"All settings export to {ExportFilePath}");
+				});
+				MakerButton btnResetAll = new MakerButton($"Reset", category, Instance);
+				ev.AddControl(btnResetAll);
+				btnResetAll.OnClick.AddListener(delegate
+				{
+					for (int i = 0; i < ddListNames.Count; i++)
+						Traverse.Create(pluginCtrl).Field(ddListNames[i]).Method("Clear").GetValue();
+					Logger.LogMessage($"All settings reset");
+				});
+				MakerButton btnImportAll = new MakerButton("Import", category, Instance);
+				ev.AddControl(btnImportAll);
+				btnImportAll.OnClick.AddListener(delegate
+				{
+					string ExportFilePath = Path.Combine(SavePath, $"MaterialEditorHelper.json");
+					List<RendererProperty> RendererPropertyList = new List<RendererProperty>();
+					List<MaterialFloatProperty> MaterialFloatPropertyList = new List<MaterialFloatProperty>();
+					List<MaterialColorProperty> MaterialColorPropertyList = new List<MaterialColorProperty>();
+					List<MaterialTextureProperty> MaterialTexturePropertyList = new List<MaterialTextureProperty>();
+					List<MaterialShader> MaterialShaderList = new List<MaterialShader>();
+					List<ObjectSetting> data = JSONSerializer.Deserialize<List<ObjectSetting>>(File.ReadAllText(ExportFilePath));
+					foreach (ObjectSetting item in data)
+					{
+						if (item.RendererPropertyList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("RendererPropertyList").Method("AddRange", new object[] { item.RendererPropertyList }).GetValue();
+						if (item.MaterialFloatPropertyList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("MaterialFloatPropertyList").Method("AddRange", new object[] { item.MaterialFloatPropertyList }).GetValue();
+						if (item.MaterialColorPropertyList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("MaterialColorPropertyList").Method("AddRange", new object[] { item.MaterialColorPropertyList }).GetValue();
+						if (item.MaterialTexturePropertyList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("MaterialTexturePropertyList").Method("AddRange", new object[] { item.MaterialTexturePropertyList }).GetValue();
+						if (item.MaterialShaderList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("MaterialShaderList").Method("AddRange", new object[] { item.MaterialShaderList }).GetValue();
+					}
+					Logger.LogMessage($"All settings import from {ExportFilePath}");
+				});
+
+				ev.AddControl(new MakerSeparator(category, this));
+
 				ev.AddControl(new MakerText("TextureDictionary", category, this));
 
 				MakerButton btnTexExport = ev.AddControl(new MakerButton("Export Texture", category, this));
@@ -198,6 +304,31 @@ namespace MaterialEditorHelper
 						Traverse.Create(row).Field("Slot").GetValue<int>()
 						select row).ToList();
 			return data;
+		}
+
+		[Serializable]
+		public class ObjectSetting
+		{
+			public ObjectType ObjectType;
+			public int CoordinateIndex;
+			public int Slot;
+			public List<RendererProperty> RendererPropertyList = new List<RendererProperty>();
+			public List<MaterialFloatProperty> MaterialFloatPropertyList = new List<MaterialFloatProperty>();
+			public List<MaterialColorProperty> MaterialColorPropertyList = new List<MaterialColorProperty>();
+			public List<MaterialTextureProperty> MaterialTexturePropertyList = new List<MaterialTextureProperty>();
+			public List<MaterialShader> MaterialShaderList = new List<MaterialShader>();
+			public ObjectSetting(ObjectType _ObjectType, int _CoordinateIndex, int _Slot)
+			{
+				ObjectType = _ObjectType;
+				CoordinateIndex = _CoordinateIndex;
+				Slot = _Slot;
+
+			}
+		}
+
+		internal sealed class ConfigurationManagerAttributes
+		{
+			public bool? Browsable;
 		}
 	}
 }

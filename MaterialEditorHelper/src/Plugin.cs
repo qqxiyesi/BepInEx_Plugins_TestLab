@@ -31,7 +31,7 @@ namespace MaterialEditorHelper
 	{
 		public const string GUID = "madevil.kk.meh";
 		public const string PluginName = "Material Editor Helper";
-		public const string Version = "1.0.1.0";
+		public const string Version = "1.0.2.0";
 
 		internal static new ManualLogSource Logger;
 		internal static MaterialEditorHelper Instance;
@@ -65,14 +65,12 @@ namespace MaterialEditorHelper
 				MaterialEditorCharaController pluginCtrl = chaCtrl?.gameObject?.GetComponent<MaterialEditorCharaController>();
 
 				MakerCategory category = new MakerCategory("05_ParameterTop", "tglMEHelper", MakerConstants.Parameter.Attribute.Position + 1, "MEH");
+				ev.AddSubCategory(category);
 
-				ddList = new MakerDropdown("List", ddListLabel.ToArray(), category, CfgDropdown.Value, this);
+				ddList = ev.AddControl(new MakerDropdown("List", ddListLabel.ToArray(), category, CfgDropdown.Value, this));
 				ddList.ValueChanged.Subscribe(value => CfgDropdown.Value = value);
-				ev.AddControl(ddList);
 
-				MakerButton btnPrint = new MakerButton("Print", category, Instance);
-				ev.AddControl(btnPrint);
-				btnPrint.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Print", category, Instance)).OnClick.AddListener(delegate
 				{
 					object data = null;
 					if (ddList.Value == 0)
@@ -88,9 +86,7 @@ namespace MaterialEditorHelper
 					string json = JSONSerializer.Serialize(data.GetType(), data, true);
 					Logger.LogInfo($"{ddListNames[ddList.Value]}\n{json}");
 				});
-				MakerButton btnExport = new MakerButton($"Export", category, Instance);
-				ev.AddControl(btnExport);
-				btnExport.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton($"Export", category, Instance)).OnClick.AddListener(delegate
 				{
 					if (!Directory.Exists(SavePath))
 						Directory.CreateDirectory(SavePath);
@@ -110,16 +106,12 @@ namespace MaterialEditorHelper
 					File.WriteAllText(ExportFilePath, json);
 					Logger.LogMessage($"{ddListNames[ddList.Value]} export to {ExportFilePath}");
 				});
-				MakerButton btnReset = new MakerButton($"Reset", category, Instance);
-				ev.AddControl(btnReset);
-				btnReset.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton($"Reset", category, Instance)).OnClick.AddListener(delegate
 				{
 					Traverse.Create(pluginCtrl).Field(ddListNames[ddList.Value]).Method("Clear").GetValue();
 					Logger.LogMessage($"{ddListNames[ddList.Value]} reset");
 				});
-				MakerButton btnImport = new MakerButton("Import", category, Instance);
-				ev.AddControl(btnImport);
-				btnImport.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Import", category, Instance)).OnClick.AddListener(delegate
 				{
 					string ExportFilePath = Path.Combine(SavePath, $"{ddListNames[ddList.Value]}.json");
 					object data = null;
@@ -141,9 +133,7 @@ namespace MaterialEditorHelper
 
 				ev.AddControl(new MakerText("All Settings", category, this));
 
-				MakerButton btnExportAll = new MakerButton("Export", category, Instance);
-				ev.AddControl(btnExportAll);
-				btnExportAll.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Export", category, Instance)).OnClick.AddListener(delegate
 				{
 					string ExportFilePath = Path.Combine(SavePath, "MaterialEditorHelper.json");
 					List<ObjectSetting> data = new List<ObjectSetting>();
@@ -202,17 +192,13 @@ namespace MaterialEditorHelper
 					File.WriteAllText(ExportFilePath, json);
 					Logger.LogMessage($"All settings export to {ExportFilePath}");
 				});
-				MakerButton btnResetAll = new MakerButton($"Reset", category, Instance);
-				ev.AddControl(btnResetAll);
-				btnResetAll.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton($"Reset", category, Instance)).OnClick.AddListener(delegate
 				{
 					for (int i = 0; i < ddListNames.Count; i++)
 						Traverse.Create(pluginCtrl).Field(ddListNames[i]).Method("Clear").GetValue();
 					Logger.LogMessage($"All settings reset");
 				});
-				MakerButton btnImportAll = new MakerButton("Import", category, Instance);
-				ev.AddControl(btnImportAll);
-				btnImportAll.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Import", category, Instance)).OnClick.AddListener(delegate
 				{
 					string ExportFilePath = Path.Combine(SavePath, $"MaterialEditorHelper.json");
 					List<RendererProperty> RendererPropertyList = new List<RendererProperty>();
@@ -241,11 +227,10 @@ namespace MaterialEditorHelper
 
 				ev.AddControl(new MakerText("TextureDictionary", category, this));
 
-				MakerButton btnTexExport = ev.AddControl(new MakerButton("Export Texture", category, this));
-				btnTexExport.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Export Texture", category, this)).OnClick.AddListener(delegate
 				{
 					Dictionary<int, TextureContainer> TextureDictionary = Traverse.Create(pluginCtrl).Field("TextureDictionary").GetValue<Dictionary<int, TextureContainer>>();
-					string now = $"{System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
+					string now = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
 					string ExportPath = Path.Combine(MaterialEditorAPI.MaterialEditorPluginBase.ExportPath, now);
 					Directory.CreateDirectory(ExportPath);
 
@@ -276,9 +261,7 @@ namespace MaterialEditorHelper
 
 				ev.AddControl(new MakerSeparator(category, this));
 
-				MakerButton btnReload = new MakerButton("Reload", category, Instance);
-				ev.AddControl(btnReload);
-				btnReload.OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Reload", category, Instance)).OnClick.AddListener(delegate
 				{
 					string CardPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Paths.ExecutablePath) + "_MaterialEditorHelper.png");
 					chaCtrl.chaFile.SaveCharaFile(CardPath, byte.MaxValue, false);
@@ -290,8 +273,6 @@ namespace MaterialEditorHelper
 					chaCtrl.Reload();
 					CustomBase.Instance.updateCustomUI = true;
 				});
-
-				ev.AddSubCategory(category);
 			};
 		}
 

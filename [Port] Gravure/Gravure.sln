@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravure.AI", "Gravure.AI\Gravure.AI.csproj", "{68122B72-CD73-48B8-8F78-29367C04F5E5}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Gravure.Core", "Gravure.Core\Gravure.Core.shproj", "{5A8FDB27-FFCA-4A77-AB0F-AFDEF9A034ED}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{841FFFF7-1940-4B7B-B21F-83E2F16333D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gravure.HS2", "Gravure.HS2\Gravure.HS2.csproj", "{E7668CF6-7A45-4F8C-9705-9441014F4BAF}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Gravure.Core\Gravure.Core.projitems*{5a8fdb27-ffca-4a77-ab0f-afdef9a034ed}*SharedItemsImports = 13
+		Gravure.Core\Gravure.Core.projitems*{68122b72-cd73-48b8-8f78-29367c04f5e5}*SharedItemsImports = 4
+		Shared\Shared.projitems*{68122b72-cd73-48b8-8f78-29367c04f5e5}*SharedItemsImports = 4
+		Shared\Shared.projitems*{841ffff7-1940-4b7b-b21f-83e2f16333d4}*SharedItemsImports = 13
+		Gravure.Core\Gravure.Core.projitems*{e7668cf6-7a45-4f8c-9705-9441014f4baf}*SharedItemsImports = 4
+		Shared\Shared.projitems*{e7668cf6-7a45-4f8c-9705-9441014f4baf}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68122B72-CD73-48B8-8F78-29367C04F5E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68122B72-CD73-48B8-8F78-29367C04F5E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68122B72-CD73-48B8-8F78-29367C04F5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68122B72-CD73-48B8-8F78-29367C04F5E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7668CF6-7A45-4F8C-9705-9441014F4BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7668CF6-7A45-4F8C-9705-9441014F4BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7668CF6-7A45-4F8C-9705-9441014F4BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7668CF6-7A45-4F8C-9705-9441014F4BAF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7FBF57BE-7EB5-43C0-ABFC-6CBFDE6F79FF}
+	EndGlobalSection
+EndGlobal

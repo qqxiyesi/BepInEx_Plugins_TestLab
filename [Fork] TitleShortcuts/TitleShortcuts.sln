@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitleShortcuts.HS2", "src\TitleShortcuts.HS2\TitleShortcuts.HS2.csproj", "{0F9AA09D-DCF3-41DE-8028-61735024FE80}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "TitleShortcuts.Core", "src\TitleShortcuts.Core\TitleShortcuts.Core.shproj", "{4D175C74-23CC-45DB-8225-537DB7E33142}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Core", "src\Common.Core\Common.Core.shproj", "{DD7D6945-54A6-4190-8F49-46A189EE32CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TitleShortcuts", "TitleShortcuts", "{5F487539-27C0-40C5-8D0E-EB75260C5D77}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\Common.Core\Common.Core.projitems*{0f9aa09d-dcf3-41de-8028-61735024fe80}*SharedItemsImports = 4
+		src\TitleShortcuts.Core\TitleShortcuts.Core.projitems*{0f9aa09d-dcf3-41de-8028-61735024fe80}*SharedItemsImports = 4
+		src\TitleShortcuts.Core\TitleShortcuts.Core.projitems*{4d175c74-23cc-45db-8225-537db7e33142}*SharedItemsImports = 13
+		src\Common.Core\Common.Core.projitems*{dd7d6945-54a6-4190-8f49-46a189ee32cd}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F9AA09D-DCF3-41DE-8028-61735024FE80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F9AA09D-DCF3-41DE-8028-61735024FE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F9AA09D-DCF3-41DE-8028-61735024FE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F9AA09D-DCF3-41DE-8028-61735024FE80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0F9AA09D-DCF3-41DE-8028-61735024FE80} = {5F487539-27C0-40C5-8D0E-EB75260C5D77}
+		{4D175C74-23CC-45DB-8225-537DB7E33142} = {5F487539-27C0-40C5-8D0E-EB75260C5D77}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {72E15697-EEFB-4CFB-9CA5-F7E946B8D551}
+	EndGlobalSection
+EndGlobal

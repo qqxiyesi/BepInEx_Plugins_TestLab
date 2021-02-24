@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultParamEditor.Koikatu", "src\DefaultParamEditor.Koikatu\DefaultParamEditor.Koikatu.csproj", "{7C3BC9CD-7E05-402E-8423-A9444434D2A5}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Core", "src\Common.Core\Common.Core.shproj", "{DD7D6945-54A6-4190-8F49-46A189EE32CD}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Koikatu", "src\Common.Koikatu\Common.Koikatu.shproj", "{5FC98374-508A-40B7-B4E1-EDB3B1D482F6}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common.Unity", "src\Common.Unity\Common.Unity.shproj", "{50994AF9-8369-47A9-A33A-37650E4B454E}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\Common.Unity\Common.Unity.projitems*{50994af9-8369-47a9-a33a-37650e4b454e}*SharedItemsImports = 13
+		src\Common.Koikatu\Common.Koikatu.projitems*{5fc98374-508a-40b7-b4e1-edb3b1d482f6}*SharedItemsImports = 13
+		src\Common.Core\Common.Core.projitems*{7c3bc9cd-7e05-402e-8423-a9444434d2a5}*SharedItemsImports = 4
+		src\Common.Koikatu\Common.Koikatu.projitems*{7c3bc9cd-7e05-402e-8423-a9444434d2a5}*SharedItemsImports = 4
+		src\Common.Unity\Common.Unity.projitems*{7c3bc9cd-7e05-402e-8423-a9444434d2a5}*SharedItemsImports = 4
+		src\Common.Core\Common.Core.projitems*{dd7d6945-54a6-4190-8f49-46a189ee32cd}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C3BC9CD-7E05-402E-8423-A9444434D2A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C3BC9CD-7E05-402E-8423-A9444434D2A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C3BC9CD-7E05-402E-8423-A9444434D2A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C3BC9CD-7E05-402E-8423-A9444434D2A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69387738-B101-4AFA-A4E4-A518A22F38B4}
+	EndGlobalSection
+EndGlobal

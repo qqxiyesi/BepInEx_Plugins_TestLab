@@ -6,6 +6,7 @@ using ExtensibleSaveFormat;
 using Illusion.Extensions;
 using Studio;
 using UnityEngine;
+using Vectrosity;
 
 namespace MapController
 {
@@ -15,15 +16,16 @@ namespace MapController
 	{
 		public const string GUID = "mikke.MapController";
 		public const string PluginName = "Map Controller plugin";
-		public const string Version = "0.3.0.1";
+		public const string Version = "0.4.0.1";
 
+		private readonly List<VectorLine> boundingLines = new List<VectorLine>();
 		private InfoNode rootNode;
-		private Rect mapControllerWindowRect = new Rect(Screen.width - 400, (Screen.height < 1440) ? 20 : (Screen.height / 2), 375f, 715f);
-		private float slideStep = 0f;
+		private Rect mapControllerWindowRect = Rect.zero;
+		private float slideStep;
 		private float step = 1f;
 		private readonly HashSet<GameObject> openedObjects = new HashSet<GameObject>();
 		private static string Search = "";
-		private static bool ShowModified = false;
+		private static bool ShowModified;
 		public static readonly Dictionary<GameObject, InfoNode> dirtyNodes = new Dictionary<GameObject, InfoNode>();
 		private readonly HashSet<GameObject> childObjects = new HashSet<GameObject>();
 		private Vector2 scrollVector;
@@ -32,11 +34,46 @@ namespace MapController
 		private GameObject flashing;
 		private int flashCount;
 		private float lastflash;
+		private bool LinesActive = false;
 
 		public void Start()
 		{
 			ExtendedSave.SceneBeingLoaded += ExtendedSaveOnSceneBeingLoaded;
 			ExtendedSave.SceneBeingSaved += ExtendedSaveOnSceneBeingSaved;
+		}
+
+		private void InitBounds()
+		{
+			float num = 0.012f;
+			if (boundingLines.Count != 0)
+			{
+				return;
+			}
+			Vector3 vector = (Vector3.up + Vector3.left + Vector3.forward) * num;
+			Vector3 vector2 = (Vector3.up + Vector3.right + Vector3.forward) * num;
+			Vector3 vector3 = (Vector3.down + Vector3.left + Vector3.forward) * num;
+			Vector3 vector4 = (Vector3.down + Vector3.right + Vector3.forward) * num;
+			Vector3 vector5 = (Vector3.up + Vector3.left + Vector3.back) * num;
+			Vector3 vector6 = (Vector3.up + Vector3.right + Vector3.back) * num;
+			Vector3 vector7 = (Vector3.down + Vector3.left + Vector3.back) * num;
+			Vector3 vector8 = (Vector3.down + Vector3.right + Vector3.back) * num;
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector, vector2));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector2, vector4));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector4, vector3));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector3, vector));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector5, vector6));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector6, vector8));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector8, vector7));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector7, vector5));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector5, vector));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector6, vector2));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector8, vector4));
+			boundingLines.Add(VectorLine.SetLine(Color.green, vector7, vector3));
+			foreach (VectorLine boundingLine in boundingLines)
+			{
+				boundingLine.lineWidth = 2f;
+				boundingLine.active = false;
+			}
 		}
 
 		private void ExtendedSaveOnSceneBeingLoaded(string path)
@@ -91,7 +128,7 @@ namespace MapController
 			if (!(map == null))
 			{
 				PluginData pluginData = new PluginData();
-				pluginData.data.Add("VERSION", "0.3");
+				pluginData.data.Add("VERSION", "0.4");
 				pluginData.data.Add("MAP", SaveChanges());
 				ExtendedSave.SetSceneExtendedDataById(GUID, pluginData);
 			}
@@ -99,19 +136,28 @@ namespace MapController
 
 		private void OnGUI()
 		{
-			if (Singleton<MapCtrl>.Instance == null || !Singleton<MapCtrl>.Instance.gameObject.activeSelf)
+			if (MapWindowIsInactive())
 			{
 				return;
 			}
 			map = Singleton<Map>.Instance.mapRoot;
 			if (!(map == null))
 			{
+				if (mapControllerWindowRect == Rect.zero)
+				{
+					mapControllerWindowRect = new Rect(Screen.width - 400, (Screen.height < 1440) ? 20 : (Screen.height / 2), 375f, 715f);
+				}
 				mapControllerWindowRect = GUILayout.Window(GetHashCode(), mapControllerWindowRect, MakeWin, "Map Controller Plugin");
 				if (mapControllerWindowRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
 				{
 					Input.ResetInputAxes();
 				}
 			}
+		}
+
+		private static bool MapWindowIsInactive()
+		{
+			return Singleton<MapCtrl>.Instance == null || !Singleton<MapCtrl>.Instance.gameObject.activeSelf;
 		}
 
 		private void MakeWin(int num)
@@ -458,6 +504,86 @@ namespace MapController
 					Flash();
 				}
 			}
+			DrawBounds();
+		}
+
+		private void DrawBounds()
+		{
+			if (MapWindowIsInactive() || selected == null)
+			{
+				if (!LinesActive)
+				{
+					return;
+				}
+				LinesActive = false;
+				foreach (VectorLine boundingLine in boundingLines)
+				{
+					boundingLine.active = false;
+				}
+				return;
+			}
+			LinesActive = true;
+			InitBounds();
+			Bounds? bounds = UpdateSelectedBounds();
+			if (!bounds.HasValue)
+			{
+				return;
+			}
+			Bounds value = bounds.Value;
+			Vector3 vector = new Vector3(value.min.x, value.max.y, value.max.z);
+			Vector3 max = value.max;
+			Vector3 vector2 = new Vector3(value.min.x, value.min.y, value.max.z);
+			Vector3 vector3 = new Vector3(value.max.x, value.min.y, value.max.z);
+			Vector3 vector4 = new Vector3(value.min.x, value.max.y, value.min.z);
+			Vector3 vector5 = new Vector3(value.max.x, value.max.y, value.min.z);
+			Vector3 min = value.min;
+			Vector3 vector6 = new Vector3(value.max.x, value.min.y, value.min.z);
+			int num = 0;
+			SetPoints(boundingLines[num++], vector, max);
+			SetPoints(boundingLines[num++], max, vector3);
+			SetPoints(boundingLines[num++], vector3, vector2);
+			SetPoints(boundingLines[num++], vector2, vector);
+			SetPoints(boundingLines[num++], vector4, vector5);
+			SetPoints(boundingLines[num++], vector5, vector6);
+			SetPoints(boundingLines[num++], vector6, min);
+			SetPoints(boundingLines[num++], min, vector4);
+			SetPoints(boundingLines[num++], vector4, vector);
+			SetPoints(boundingLines[num++], vector5, max);
+			SetPoints(boundingLines[num++], vector6, vector3);
+			SetPoints(boundingLines[num++], min, vector2);
+			foreach (VectorLine boundingLine2 in boundingLines)
+			{
+				boundingLine2.active = true;
+				boundingLine2.Draw();
+			}
+		}
+
+		public static void SetPoints(VectorLine vl, params Vector3[] points)
+		{
+			for (int i = 0; i < vl.points3.Count; i++)
+			{
+				vl.points3[i] = points[i];
+			}
+		}
+
+		private Bounds? UpdateSelectedBounds()
+		{
+			Renderer component = selected.GetComponent<Renderer>();
+			if (component != null)
+			{
+				return component.bounds;
+			}
+			Renderer[] componentsInChildren = selected.GetComponentsInChildren<Renderer>();
+			if (((ICollection<Renderer>)(object) componentsInChildren) == null)
+			{
+				return null;
+			}
+			Bounds bounds = componentsInChildren[0].bounds;
+			for (int i = 1; i < componentsInChildren.Length; i++)
+			{
+				bounds.Encapsulate(componentsInChildren[i].bounds);
+			}
+			return bounds;
 		}
 	}
 }

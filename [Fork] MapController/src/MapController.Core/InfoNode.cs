@@ -11,12 +11,11 @@ namespace MapController
 		public string Name;
 		public bool Inactive;
 		public List<InfoNode> Children;
-		public bool Dirty = false;
+		public bool Dirty;
 		public Vector3 NewPos;
 		public Vector3 NewRot;
 		public Vector3 OrgRot;
 		public Vector3 NewScl;
-
 		public bool DefaultActive = true;
 
 		public InfoNode(IEnumerator<string> enumerator)

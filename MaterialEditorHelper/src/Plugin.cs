@@ -25,13 +25,13 @@ namespace MaterialEditorHelper
 	[BepInProcess("Koikatu")]
 	[BepInProcess("Koikatsu Party")]
 	[BepInPlugin(GUID, PluginName, Version)]
-	[BepInDependency("marco.kkapi", "1.1.5")]
-	[BepInDependency("com.deathweasel.bepinex.materialeditor", "2.5")]
+	[BepInDependency("marco.kkapi")]
+	[BepInDependency("com.deathweasel.bepinex.materialeditor", "3.0")]
 	public class MaterialEditorHelper : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.meh";
 		public const string PluginName = "Material Editor Helper";
-		public const string Version = "1.0.2.0";
+		public const string Version = "1.1.0.0";
 
 		internal static new ManualLogSource Logger;
 		internal static MaterialEditorHelper Instance;
@@ -39,8 +39,8 @@ namespace MaterialEditorHelper
 		internal static string SavePath = "";
 
 		internal static MakerDropdown ddList;
-		internal static List<string> ddListLabel = new List<string>() { "Renderer", "Shader", "Float Property", "Color Property", "Texture Property" };
-		internal static List<string> ddListNames = new List<string>() { "RendererPropertyList", "MaterialShaderList", "MaterialFloatPropertyList", "MaterialColorPropertyList", "MaterialTexturePropertyList" };
+		internal static List<string> ddListLabel = new List<string>() { "Renderer", "Shader", "Float Property", "Color Property", "Texture Property", "Copy" };
+		internal static List<string> ddListNames = new List<string>() { "RendererPropertyList", "MaterialShaderList", "MaterialFloatPropertyList", "MaterialColorPropertyList", "MaterialTexturePropertyList", "MaterialCopyList" };
 
 		internal static ConfigEntry<int> CfgDropdown { get; set; }
 
@@ -55,9 +55,6 @@ namespace MaterialEditorHelper
 		private void Start()
 		{
 			CfgDropdown = Config.Bind("General", "Dropdown", 0, new ConfigDescription("", null, new ConfigurationManagerAttributes { Browsable = false }));
-
-			BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.deathweasel.bepinex.materialeditor", out PluginInfo PluginInfo);
-			//System.Type MaterialEditorPluginBase = PluginInfo.Instance.GetType().Assembly.GetType("MaterialEditorAPI.MaterialEditorPluginBase");
 
 			MakerAPI.RegisterCustomSubCategories += (object sender, RegisterSubCategoriesEvent ev) =>
 			{
@@ -83,6 +80,8 @@ namespace MaterialEditorHelper
 						data = FetchList<MaterialColorProperty>(pluginCtrl, ddListNames[ddList.Value]);
 					else if (ddList.Value == 4)
 						data = FetchList<MaterialTextureProperty>(pluginCtrl, ddListNames[ddList.Value]);
+					else if (ddList.Value == 5)
+						data = FetchList<MaterialCopy>(pluginCtrl, ddListNames[ddList.Value]);
 					string json = JSONSerializer.Serialize(data.GetType(), data, true);
 					Logger.LogInfo($"{ddListNames[ddList.Value]}\n{json}");
 				});
@@ -102,6 +101,8 @@ namespace MaterialEditorHelper
 						data = FetchList<MaterialColorProperty>(pluginCtrl, ddListNames[ddList.Value]);
 					else if (ddList.Value == 4)
 						data = FetchList<MaterialTextureProperty>(pluginCtrl, ddListNames[ddList.Value]);
+					else if (ddList.Value == 5)
+						data = FetchList<MaterialCopy>(pluginCtrl, ddListNames[ddList.Value]);
 					string json = JSONSerializer.Serialize(data.GetType(), data, true);
 					File.WriteAllText(ExportFilePath, json);
 					Logger.LogMessage($"{ddListNames[ddList.Value]} export to {ExportFilePath}");
@@ -125,6 +126,8 @@ namespace MaterialEditorHelper
 						data = JSONSerializer.Deserialize<List<MaterialColorProperty>>(File.ReadAllText(ExportFilePath));
 					else if (ddList.Value == 4)
 						data = JSONSerializer.Deserialize<List<MaterialTextureProperty>>(File.ReadAllText(ExportFilePath));
+					else if (ddList.Value == 5)
+						data = JSONSerializer.Deserialize<List<MaterialCopy>>(File.ReadAllText(ExportFilePath));
 					Traverse.Create(pluginCtrl).Field(ddListNames[ddList.Value]).Method("AddRange", new object[] { data }).GetValue();
 					Logger.LogMessage($"{ddListNames[ddList.Value]} import from {ExportFilePath}");
 				});
@@ -187,6 +190,16 @@ namespace MaterialEditorHelper
 						}
 						ObjectSetting.MaterialTexturePropertyList.Add(item);
 					}
+					foreach (var item in FetchList<MaterialCopy>(pluginCtrl, ddListNames[5]))
+					{
+						ObjectSetting ObjectSetting = data.Where(x => x.ObjectType == item.ObjectType && x.CoordinateIndex == item.CoordinateIndex && x.Slot == item.Slot).FirstOrDefault();
+						if (ObjectSetting == null)
+						{
+							ObjectSetting = new ObjectSetting(item.ObjectType, item.CoordinateIndex, item.Slot);
+							data.Add(ObjectSetting);
+						}
+						ObjectSetting.MaterialCopyList.Add(item);
+					}
 					data = data.OrderBy(x => x.ObjectType).ThenBy(x => x.CoordinateIndex).ThenBy(x => x.Slot).ToList();
 					string json = JSONSerializer.Serialize(data.GetType(), data, true);
 					File.WriteAllText(ExportFilePath, json);
@@ -206,6 +219,7 @@ namespace MaterialEditorHelper
 					List<MaterialColorProperty> MaterialColorPropertyList = new List<MaterialColorProperty>();
 					List<MaterialTextureProperty> MaterialTexturePropertyList = new List<MaterialTextureProperty>();
 					List<MaterialShader> MaterialShaderList = new List<MaterialShader>();
+					List<MaterialCopy> MaterialCopyList = new List<MaterialCopy>();
 					List<ObjectSetting> data = JSONSerializer.Deserialize<List<ObjectSetting>>(File.ReadAllText(ExportFilePath));
 					foreach (ObjectSetting item in data)
 					{
@@ -219,6 +233,8 @@ namespace MaterialEditorHelper
 							Traverse.Create(pluginCtrl).Field("MaterialTexturePropertyList").Method("AddRange", new object[] { item.MaterialTexturePropertyList }).GetValue();
 						if (item.MaterialShaderList.Count > 0)
 							Traverse.Create(pluginCtrl).Field("MaterialShaderList").Method("AddRange", new object[] { item.MaterialShaderList }).GetValue();
+						if (item.MaterialCopyList.Count > 0)
+							Traverse.Create(pluginCtrl).Field("MaterialCopyList").Method("AddRange", new object[] { item.MaterialCopyList }).GetValue();
 					}
 					Logger.LogMessage($"All settings import from {ExportFilePath}");
 				});
@@ -298,12 +314,12 @@ namespace MaterialEditorHelper
 			public List<MaterialColorProperty> MaterialColorPropertyList = new List<MaterialColorProperty>();
 			public List<MaterialTextureProperty> MaterialTexturePropertyList = new List<MaterialTextureProperty>();
 			public List<MaterialShader> MaterialShaderList = new List<MaterialShader>();
+			public List<MaterialCopy> MaterialCopyList = new List<MaterialCopy>();
 			public ObjectSetting(ObjectType _ObjectType, int _CoordinateIndex, int _Slot)
 			{
 				ObjectType = _ObjectType;
 				CoordinateIndex = _CoordinateIndex;
 				Slot = _Slot;
-
 			}
 		}
 

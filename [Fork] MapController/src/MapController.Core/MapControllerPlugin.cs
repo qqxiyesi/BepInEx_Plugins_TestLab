@@ -16,7 +16,7 @@ namespace MapController
 	{
 		public const string GUID = "mikke.MapController";
 		public const string PluginName = "Map Controller plugin";
-		public const string Version = "0.4.0.1";
+		public const string Version = "1.0.0.1";
 
 		private readonly List<VectorLine> boundingLines = new List<VectorLine>();
 		private InfoNode rootNode;
@@ -34,7 +34,7 @@ namespace MapController
 		private GameObject flashing;
 		private int flashCount;
 		private float lastflash;
-		private bool LinesActive = false;
+		private bool LinesActive;
 
 		public void Start()
 		{
@@ -79,24 +79,16 @@ namespace MapController
 		private void ExtendedSaveOnSceneBeingLoaded(string path)
 		{
 			PluginData sceneExtendedDataById = ExtendedSave.GetSceneExtendedDataById(GUID);
-			string text = default(string);
-			int num;
 			if (sceneExtendedDataById != null && sceneExtendedDataById.data.TryGetValue("MAP", out var value))
 			{
-				text = value as string;
-				num = ((text != null) ? 1 : 0);
-			}
-			else
-			{
-				num = 0;
-			}
-			if (num != 0)
-			{
-				IEnumerable<string> enumerable = ParseNodeInfo(text);
-				IEnumerator<string> enumerator = enumerable.GetEnumerator();
-				enumerator.MoveNext();
-				enumerator.MoveNext();
-				rootNode = new InfoNode(enumerator);
+				string text = value as string;
+				if (text != null)
+				{
+					IEnumerator<string> enumerator = ParseNodeInfo(text).GetEnumerator();
+					enumerator.MoveNext();
+					enumerator.MoveNext();
+					rootNode = new InfoNode(enumerator);
+				}
 			}
 		}
 
@@ -115,11 +107,11 @@ namespace MapController
 
 		private IEnumerable<string> ParseNodeInfo(string data)
 		{
-			string[] str = data.Split('§');
-			string[] array = str;
-			for (int i = 0; i < array.Length; i++)
+			string[] array = data.Split('§');
+			string[] array2 = array;
+			for (int i = 0; i < array2.Length; i++)
 			{
-				yield return array[i];
+				yield return array2[i];
 			}
 		}
 
@@ -128,9 +120,9 @@ namespace MapController
 			if (!(map == null))
 			{
 				PluginData pluginData = new PluginData();
-				pluginData.data.Add("VERSION", "0.4");
+				pluginData.data.Add("VERSION", "1.0");
 				pluginData.data.Add("MAP", SaveChanges());
-				ExtendedSave.SetSceneExtendedDataById(GUID, pluginData);
+				ExtendedSave.SetSceneExtendedDataById("mikke.MapController", pluginData);
 			}
 		}
 
@@ -157,7 +149,11 @@ namespace MapController
 
 		private static bool MapWindowIsInactive()
 		{
-			return Singleton<MapCtrl>.Instance == null || !Singleton<MapCtrl>.Instance.gameObject.activeSelf;
+			if (!(Singleton<MapCtrl>.Instance == null))
+			{
+				return !Singleton<MapCtrl>.Instance.gameObject.activeSelf;
+			}
+			return true;
 		}
 
 		private void MakeWin(int num)
@@ -260,8 +256,7 @@ namespace MapController
 
 		private void SetTranslate(float x, float y, float z)
 		{
-			InfoNode infoNode = CheckDirtyNode();
-			infoNode.NewPos += new Vector3(x, y, z);
+			CheckDirtyNode().NewPos += new Vector3(x, y, z);
 			selected.transform.Translate(x, y, z, Space.World);
 		}
 
@@ -413,7 +408,7 @@ namespace MapController
 				GUILayout.BeginHorizontal();
 				if (Search.Length == 0 && !ShowModified)
 				{
-					GUILayout.Space(indent * 20f);
+					GUILayout.Space((float)indent * 20f);
 					int num = 0;
 					for (int i = 0; i < go.transform.childCount; i++)
 					{
@@ -574,7 +569,7 @@ namespace MapController
 				return component.bounds;
 			}
 			Renderer[] componentsInChildren = selected.GetComponentsInChildren<Renderer>();
-			if (((ICollection<Renderer>)(object) componentsInChildren) == null)
+			if (((ICollection<Renderer>)(object)componentsInChildren) == null)
 			{
 				return null;
 			}

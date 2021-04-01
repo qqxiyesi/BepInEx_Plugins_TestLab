@@ -10,6 +10,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 
 using KKAPI.Studio.SaveLoad;
+using KKAPI.Utilities;
 
 namespace ShadowSettings
 {
@@ -19,7 +20,7 @@ namespace ShadowSettings
 	{
 		public const string GUID = "ShadowSettings";
 		public const string PluginName = "Shadow Settings";
-		public const string Version = "1.0.1.0";
+		public const string Version = "1.0.2.0";
 
 		internal static ConfigEntry<ShadowQuality> ShadowQuality { get; set; }
 		internal static ConfigEntry<ShadowResolution> ShadowResolution { get; set; }
@@ -67,11 +68,6 @@ namespace ShadowSettings
 		{
 			setter();
 			configEntry.SettingChanged += (sender, args) => setter();
-		}
-
-		internal sealed class ConfigurationManagerAttributes
-		{
-			public int? Order;
 		}
 	}
 }

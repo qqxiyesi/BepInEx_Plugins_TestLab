@@ -6,23 +6,39 @@ namespace MovUrAcc
 	{
 		internal class MovUrAccUI : MonoBehaviour
 		{
-			private static Rect windowRect = new Rect(340, 210, 300, 450);
+			private int _windowRectID;
+			private Rect _windowRect;
+			private Vector2 _windowSize = new Vector2(300f, 450f);
+			private Texture2D _windowBGtex = null;
+			private bool _hasFocus = false;
+
 			private static readonly GUILayoutOption expandLayoutOption = GUILayout.ExpandWidth(true);
 
 			private void Awake()
 			{
 				DontDestroyOnLoad(this);
 				enabled = false;
+
+				_windowRectID = GUIUtility.GetControlID(FocusType.Passive);
+				_windowRect = new Rect(340, 210, _windowSize.x, _windowSize.y);
+				_windowBGtex = MakeTex((int)_windowSize.x, (int)_windowSize.y, new Color(0.2f, 0.2f, 0.2f, 1f));
 			}
 
 			private void OnGUI()
 			{
-				KKAPI.Utilities.IMGUIUtils.DrawSolidBox(windowRect);
-				Rect rect = GUILayout.Window(9478, windowRect, DrawWindowContents, "MovUrAcc");
-				windowRect.x = rect.x;
-				windowRect.y = rect.y;
+				GUIStyle _windowSolid = new GUIStyle(GUI.skin.window);
+				Texture2D _onNormalBG = _windowSolid.onNormal.background;
+				_windowSolid.normal.background = _onNormalBG;
 
-				if (windowRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+				Rect rect = GUILayout.Window(_windowRectID, _windowRect, DrawWindowContents, "MovUrAcc", _windowSolid);
+				_windowRect.x = rect.x;
+				_windowRect.y = rect.y;
+
+				Event _windowEvent = Event.current;
+				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
+					_hasFocus = false;
+
+				if (_hasFocus && _windowRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
 					Input.ResetInputAxes();
 			}
 
@@ -33,6 +49,13 @@ namespace MovUrAcc
 
 			private void DrawWindowContents(int id)
 			{
+				Event _windowEvent = Event.current;
+				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
+					_hasFocus = true;
+
+				GUI.Box(new Rect(0, 0, _windowSize.x, _windowSize.y), _windowBGtex);
+				GUI.Box(new Rect(0, 0, _windowSize.x, 23), $"MovUrAcc", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
+
 				GUILayout.BeginVertical();
 				{
 					GUI.changed = false;
@@ -177,6 +200,20 @@ namespace MovUrAcc
 				GUILayout.EndVertical();
 
 				GUI.DragWindow();
+			}
+
+			private Texture2D MakeTex(int _width, int _height, Color _color)
+			{
+				Color[] pix = new Color[_width * _height];
+
+				for (int i = 0; i < pix.Length; i++)
+					pix[i] = _color;
+
+				Texture2D result = new Texture2D(_width, _height);
+				result.SetPixels(pix);
+				result.Apply();
+
+				return result;
 			}
 		}
 	}

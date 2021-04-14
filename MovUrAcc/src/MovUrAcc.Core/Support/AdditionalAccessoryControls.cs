@@ -41,7 +41,7 @@ namespace MovUrAcc
 			internal static void RemoveSetting(object pluginCtrl, int slot)
 			{
 				if (!Installed) return;
-				Traverse.Create(pluginCtrl).Method("AccessoryKindChangeEvent", new object[] { null, new AccessorySlotEventArgs(slot) }).GetValue();
+				Traverse.Create(pluginCtrl).Method("UpdateCharacterAccessories", new object[] { null, new AccessorySlotEventArgs(slot) }).GetValue();
 			}
 		}
 	}

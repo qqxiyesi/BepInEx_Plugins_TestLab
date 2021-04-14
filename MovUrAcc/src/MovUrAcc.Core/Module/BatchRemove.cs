@@ -49,9 +49,9 @@ namespace MovUrAcc
 				MoreAccessories.ResetPartsInfo(chaCtrl, i);
 			}
 
-			RefreshMakerUI();
-
 			btnLock = false;
+
+			RefreshMakerUI();
 		}
 	}
 }

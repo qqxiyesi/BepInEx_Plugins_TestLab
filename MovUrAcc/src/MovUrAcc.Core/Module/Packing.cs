@@ -37,9 +37,9 @@ namespace MovUrAcc
 
 			ProcessQueue(Queue);
 
-			RefreshMakerUI();
-
 			btnLock = false;
+
+			RefreshMakerUI();
 		}
 	}
 }

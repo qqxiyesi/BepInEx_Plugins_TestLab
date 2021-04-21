@@ -28,8 +28,8 @@ namespace Specter.Assist
 				Singleton<Studio.Studio>.Instance.cameraCtrl.noCtrlCondition = () => false;
 			GUILayout.BeginArea(guiRect);
 			GUILayout.BeginHorizontal();
-			commonGuideRatio = GUILayout.HorizontalSlider(commonGuideRatio, 0.1f, 10f);
-			GUILayout.Label(commonGuideRatio.ToString("F2"), GUILayout.Width(40f));
+			commonGuideRatio = Mathf.Round(GUILayout.HorizontalSlider(commonGuideRatio, 1f, 10f));
+			GUILayout.Label($"x{commonGuideRatio}", GUILayout.Width(40f));
 			GUILayout.EndHorizontal();
 			GUILayout.EndArea();
 		}

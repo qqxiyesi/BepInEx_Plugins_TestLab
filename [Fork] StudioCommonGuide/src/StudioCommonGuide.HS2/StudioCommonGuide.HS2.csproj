@@ -22,12 +22,12 @@
       <HintPath>..\..\packages\IllusionLibs.HoneySelect2.Assembly-CSharp-firstpass.2020.5.29\lib\net35\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="BepInEx, Version=5.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\IllusionLibs.BepInEx.5.4.4\lib\net35\BepInEx.dll</HintPath>
+    <Reference Include="BepInEx, Version=5.4.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\IllusionLibs.BepInEx.5.4.8\lib\net35\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HS2API, Version=1.15.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\IllusionModdingAPI.HS2API.1.15.0\lib\net46\HS2API.dll</HintPath>
+    <Reference Include="HS2API, Version=1.17.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\IllusionModdingAPI.HS2API.1.17.0\lib\net46\HS2API.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="IL, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">

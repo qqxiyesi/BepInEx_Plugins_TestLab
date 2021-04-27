@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
+using ParadoxNotion.Serialization;
 using UnityEngine;
 using UniRx;
 
 using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 
 using KKAPI.Maker;
 using KKAPI.Maker.UI;
@@ -26,8 +30,8 @@ namespace DynamicBoneEditorBatchSettings
 	public class DynamicBoneEditorBatchSettings : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.dbebs";
-		public const string Name = "Dynamic Bone Editor Batch Settings (PRE)";
-		public const string Version = "1.0.0.0";
+		public const string Name = "Dynamic Bone Editor Batch Settings";
+		public const string Version = "1.1.0.0";
 
 		internal static ConfigEntry<bool> EnableFreezeAxis;
 		internal static ConfigEntry<DynamicBone.FreezeAxis> DefaultFreezeAxis;
@@ -43,6 +47,8 @@ namespace DynamicBoneEditorBatchSettings
 		internal static ConfigEntry<float> DefaultInertia;
 		internal static ConfigEntry<bool> EnableRadius;
 		internal static ConfigEntry<float> DefaultRadius;
+
+		internal static string SavePath = Path.Combine(Paths.GameRootPath, "Temp");
 
 		private void Start()
 		{
@@ -64,6 +70,7 @@ namespace DynamicBoneEditorBatchSettings
 			MakerAPI.RegisterCustomSubCategories += (object sender, RegisterSubCategoriesEvent ev) =>
 			{
 				MakerCategory category = new MakerCategory("05_ParameterTop", "tglDBEBS", MakerConstants.Parameter.Attribute.Position + 2, "DBEBS");
+				ev.AddSubCategory(category);
 
 				MakerToggle EnableFreezeAxisToggle = ev.AddControl(new MakerToggle(category, "FreezeAxis", EnableFreezeAxis.Value, this));
 				EnableFreezeAxisToggle.ValueChanged.Subscribe(value =>
@@ -208,15 +215,64 @@ namespace DynamicBoneEditorBatchSettings
 
 				MakerRadioButtons ModeRadioButtons = ev.AddControl(new MakerRadioButtons(category, this, "Mode", "All", "Hair", "Item"));
 
-				ev.AddControl(new MakerSeparator(category, this));
-
-				ev.AddControl(new MakerButton("Apply", category, this)).OnClick.AddListener(delegate
+				ev.AddControl(new MakerButton("Apply (Outfit)", category, this)).OnClick.AddListener(delegate
 				{
 					ApplySettings(ModeRadioButtons.Value);
 					ChaCustom.CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
 				});
 
-				ev.AddSubCategory(category);
+				ev.AddControl(new MakerSeparator(category, this));
+
+				MakerRadioButtons ExportRadioButtons = ev.AddControl(new MakerRadioButtons(category, this, "Mode", "Chara", "Outfit"));
+
+				ev.AddControl(new MakerButton("Reset", category, this)).OnClick.AddListener(delegate
+				{
+					ChaControl chaCtrl = MakerAPI.GetCharacterControl();
+					CharaController pluginCtrl = chaCtrl?.gameObject?.GetComponent<CharaController>();
+					if (ExportRadioButtons.Value == 1)
+					{
+						List<DynamicBoneData> data = Traverse.Create(pluginCtrl).Field("AccessoryDynamicBoneData").GetValue<List<DynamicBoneData>>();
+						data.RemoveAll(x => x.CoordinateIndex == chaCtrl.fileStatus.coordinateType);
+					}
+					else
+					{
+						Traverse.Create(pluginCtrl).Field("AccessoryDynamicBoneData").Method("Clear").GetValue();
+					}
+
+					ChaCustom.CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
+				});
+
+				ev.AddControl(new MakerButton("Export", category, this)).OnClick.AddListener(delegate
+				{
+					ChaControl chaCtrl = MakerAPI.GetCharacterControl();
+					CharaController pluginCtrl = chaCtrl?.gameObject?.GetComponent<CharaController>();
+					string ExportFilePath = Path.Combine(SavePath, "DBEBS.json");
+					List<DynamicBoneData> data = Traverse.Create(pluginCtrl).Field("AccessoryDynamicBoneData").GetValue<List<DynamicBoneData>>().ToList();
+					if (ExportRadioButtons.Value == 1)
+					{
+						data.RemoveAll(x => x.CoordinateIndex != chaCtrl.fileStatus.coordinateType);
+						data = data.OrderBy(x => x.Slot).ThenBy(x => x.BoneName).ToList();
+					}
+					else
+					{
+						data = data.OrderBy(x => x.CoordinateIndex).ThenBy(x => x.Slot).ThenBy(x => x.BoneName).ToList();
+					}
+					string json = JSONSerializer.Serialize(data.GetType(), data, true);
+					File.WriteAllText(ExportFilePath, json);
+					Logger.LogMessage($"Settings export to {ExportFilePath}");
+				});
+
+				ev.AddControl(new MakerSeparator(category, this));
+
+				ev.AddControl(new MakerButton("Import (Chara)", category, this)).OnClick.AddListener(delegate
+				{
+					ChaControl chaCtrl = MakerAPI.GetCharacterControl();
+					CharaController pluginCtrl = chaCtrl?.gameObject?.GetComponent<CharaController>();
+					string ExportFilePath = Path.Combine(SavePath, "DBEBS.json");
+					List<DynamicBoneData> data = JSONSerializer.Deserialize<List<DynamicBoneData>>(File.ReadAllText(ExportFilePath));
+					Traverse.Create(pluginCtrl).Field("AccessoryDynamicBoneData").Method("AddRange", new object[] { data.ToList() }).GetValue();
+					Logger.LogMessage($"Settings import from {ExportFilePath}");
+				});
 			};
 		}
 

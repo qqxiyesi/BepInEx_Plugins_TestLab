@@ -43,7 +43,7 @@ namespace ParentSwitch
 			private Vector2 _accListScrollPos = Vector2.zero;
 			private Vector2 _parentListScrollPos = Vector2.zero;
 			internal Dictionary<int, bool> _checkboxList = new Dictionary<int, bool>();
-			private HashSet<string> _parents = new HashSet<string>();
+			internal HashSet<string> _parents = new HashSet<string>();
 			internal string _selectedParent = "";
 
 			private void Awake()
@@ -208,17 +208,13 @@ namespace ParentSwitch
 
 								_checkboxList.Clear();
 								_selectedParent = "";
+								_parents.Clear();
 								CustomBase.Instance.updateCustomUI = true;
 								CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
 								_logger.LogMessage($"Done");
 							}
 						}
 						GUILayout.EndVertical();
-						/*
-						GUILayout.BeginVertical();
-						GUILayout.Label("The character will be set to T-pose");
-						GUILayout.EndVertical();
-						*/
 					}
 					GUILayout.EndHorizontal();
 
@@ -243,6 +239,7 @@ namespace ParentSwitch
 							{
 								_selectedParent = "";
 								_checkboxList.Clear();
+								_parents.Clear();
 							}
 
 							foreach (string _name in _parents)

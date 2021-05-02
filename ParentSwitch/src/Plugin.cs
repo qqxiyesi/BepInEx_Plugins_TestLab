@@ -25,7 +25,7 @@ namespace ParentSwitch
 	{
 		public const string GUID = "ParentSwitch";
 		public const string Name = "ParentSwitch";
-		public const string Version = "1.0.0.0";
+		public const string Version = "1.0.1.0";
 
 		internal static ManualLogSource _logger;
 		internal static ParentSwitch _instance;
@@ -110,6 +110,7 @@ namespace ParentSwitch
 				{
 					_makerConfigWindow._checkboxList.Clear();
 					_makerConfigWindow._selectedParent = "";
+					_makerConfigWindow._parents.Clear();
 				}
 			}
 		}

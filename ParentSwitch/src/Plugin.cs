@@ -25,7 +25,7 @@ namespace ParentSwitch
 	{
 		public const string GUID = "ParentSwitch";
 		public const string Name = "ParentSwitch";
-		public const string Version = "1.0.1.0";
+		public const string Version = "1.0.2.0";
 
 		internal static ManualLogSource _logger;
 		internal static ParentSwitch _instance;
@@ -67,7 +67,7 @@ namespace ParentSwitch
 		{
 			MakerAPI.RegisterCustomSubCategories += (_sender, _args) =>
 			{
-				_accessoriesByChar = Traverse.Create(MoreAccessories._self).Field("_accessoriesByChar").GetValue<Dictionary<ChaFile, MoreAccessories.CharAdditionalData>>();
+				_accessoriesByChar = Traverse.Create(MoreAccessories._self).Field("_accessoriesByChar").GetValue();
 				_makerConfigWindow = _instance.gameObject.AddComponent<ParentSwitchUI>();
 
 				_sidebarToggleEnable = _args.AddSidebarControl(new SidebarToggle(Name, false, _instance));
@@ -87,17 +87,17 @@ namespace ParentSwitch
 				Destroy(_makerConfigWindow);
 
 				_sidebarToggleEnable = null;
-				_accessoriesByChar = new Dictionary<ChaFile, MoreAccessories.CharAdditionalData>();
+				_accessoriesByChar = null;
 			};
 		}
 
 		internal static ChaControl _chaCtrl => CustomBase.Instance?.chaCtrl;
-		internal static Dictionary<ChaFile, MoreAccessories.CharAdditionalData> _accessoriesByChar = new Dictionary<ChaFile, MoreAccessories.CharAdditionalData>();
+		internal static object _accessoriesByChar = null;
 
 		internal static List<ChaFileAccessory.PartsInfo> ListPartsInfo()
 		{
 			List<ChaFileAccessory.PartsInfo> _partInfo = _chaCtrl.nowCoordinate.accessory.parts.ToList();
-			_partInfo.AddRange(_accessoriesByChar[_chaCtrl.chaFile].nowAccessories ?? new List<ChaFileAccessory.PartsInfo>());
+			_partInfo.AddRange(_accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile)?.nowAccessories ?? new List<ChaFileAccessory.PartsInfo>());
 			return _partInfo;
 		}
 

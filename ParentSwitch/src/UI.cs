@@ -194,10 +194,10 @@ namespace ParentSwitch
 									if (_ddPose.options.Count > 57)
 										_ddPose.value = 57;
 								}
-								CustomBase.Instance.chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
-								CustomBase.Instance.chaCtrl.AnimPlay("tpose");
+								_chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
+								_chaCtrl.AnimPlay("tpose");
 
-								MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar[_chaCtrl.chaFile];
+								MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
 								int _count = (int) _additionalData?.nowAccessories?.Count + 20;
 
 								for (int i = 0; i < _count; i++)
@@ -210,7 +210,7 @@ namespace ParentSwitch
 								_selectedParent = "";
 								_parents.Clear();
 								CustomBase.Instance.updateCustomUI = true;
-								CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
+								_chaCtrl.ChangeCoordinateTypeAndReload(false);
 								_logger.LogMessage($"Done");
 							}
 						}

@@ -17,7 +17,7 @@ namespace ParentSwitch
 		internal static void ChangeParent(int slotNo, string parentStr)
 		{
 			ChaControl chaCtrl = _chaCtrl;
-			MoreAccessories.CharAdditionalData additionalData = _accessoriesByChar[chaCtrl.chaFile];
+			MoreAccessories.CharAdditionalData additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(chaCtrl.chaFile);
 
 			ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo();
 			if (slotNo < 20)
@@ -41,7 +41,7 @@ namespace ParentSwitch
 
 			Transform n_move = gameObject.GetComponentsInChildren<Transform>().Where(x => x.name == "N_move").FirstOrDefault();
 			if (n_move == null)
-            {
+			{
 				_logger.LogMessage($"Skip Slot{slotNo + 1:00} because it doesn't have a valid N_move Transform");
 				return;
 			}

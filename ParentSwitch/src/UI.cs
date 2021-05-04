@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
@@ -164,55 +164,80 @@ namespace ParentSwitch
 					{
 						GUILayout.BeginVertical();
 						{
-							string _tip = "The character will be set to T-pose";
-							if (_selectedParent == "")
-								_tip = "Select a parent first";
-							else if (!_checkboxList.Any(x => x.Value))
-								_tip = "Select a part first";
-
-							if (GUILayout.Button(new GUIContent("Apply", _tip)))
+							GUILayout.BeginHorizontal();
 							{
+								if (GUILayout.Button("All", GUILayout.Width(60)))
+								{
+									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
+									int _count = (int) _additionalData?.nowAccessories?.Count + 20;
+
+									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
+										_checkboxList[_slotIndex] = true;
+								}
+
+								if (GUILayout.Button("None", GUILayout.Width(60)))
+								{
+									for (int i = 0; i < _checkboxList.Count; i++)
+										_checkboxList[i] = false;
+								}
+
+								GUILayout.FlexibleSpace();
+
+								string _tip = "The character will be set to T-pose";
 								if (_selectedParent == "")
+									_tip = "Select a parent first";
+								else if (!_checkboxList.Any(x => x.Value))
+									_tip = "Select a part first";
+
+								if (GUILayout.Button(new GUIContent("Apply", _tip), GUILayout.Width(60)))
 								{
-									_logger.LogMessage("Select a parent first");
-									return;
+									if (_selectedParent == "")
+									{
+										_logger.LogMessage("Select a parent first");
+										return;
+									}
+
+									if (!_checkboxList.Any(x => x.Value))
+									{
+										_logger.LogMessage("Select a part first");
+										return;
+									}
+
+									if (!_cfgDebugCamera.Value)
+										FindObjectOfType<BaseCameraControl_Ver2>().Reset(0);
+
+									if (!_cfgDebugTpose.Value)
+									{
+										TMP_Dropdown _ddPose = Traverse.Create(CustomBase.Instance.customCtrl.cmpDrawCtrl).Field("ddPose").GetValue<TMP_Dropdown>();
+										if (_ddPose.options.Count > 66) // some shit dirty hack since LoadAnimation act weird
+											_ddPose.value = _ddPose.options.Count - 1;
+										else
+										{
+											if (_ddPose.options.Count > 57)
+												_ddPose.value = 57;
+										}
+										_chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
+										_chaCtrl.AnimPlay("tpose");
+									}
+
+									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
+									int _count = (int)_additionalData?.nowAccessories?.Count + 20;
+
+									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
+									{
+										if (_checkboxList[_slotIndex])
+											ChangeParent(_slotIndex, _selectedParent);
+									}
+
+									_checkboxList.Clear();
+									_selectedParent = "";
+									_parents.Clear();
+									CustomBase.Instance.updateCustomUI = true;
+									_chaCtrl.ChangeCoordinateTypeAndReload(false);
+									_logger.LogMessage($"Done");
 								}
-
-								if (!_checkboxList.Any(x => x.Value))
-								{
-									_logger.LogMessage("Select a part first");
-									return;
-								}
-
-								FindObjectOfType<BaseCameraControl_Ver2>().Reset(0);
-
-								TMP_Dropdown _ddPose = Traverse.Create(CustomBase.Instance.customCtrl.cmpDrawCtrl).Field("ddPose").GetValue<TMP_Dropdown>();
-								if (_ddPose.options.Count > 66) // some shit dirty hack since LoadAnimation act weird
-									_ddPose.value = _ddPose.options.Count - 1;
-								else
-								{
-									if (_ddPose.options.Count > 57)
-										_ddPose.value = 57;
-								}
-								_chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
-								_chaCtrl.AnimPlay("tpose");
-
-								MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
-								int _count = (int) _additionalData?.nowAccessories?.Count + 20;
-
-								for (int i = 0; i < _count; i++)
-								{
-									if (_checkboxList[i])
-										ChangeParent(i, _selectedParent);
-								}
-
-								_checkboxList.Clear();
-								_selectedParent = "";
-								_parents.Clear();
-								CustomBase.Instance.updateCustomUI = true;
-								_chaCtrl.ChangeCoordinateTypeAndReload(false);
-								_logger.LogMessage($"Done");
 							}
+							GUILayout.EndHorizontal();
 						}
 						GUILayout.EndVertical();
 					}
@@ -255,7 +280,6 @@ namespace ParentSwitch
 										if (GUILayout.Button(_name))
 										{
 											_selectedParent = _name;
-											//_checkboxList.Clear();
 										}
 									}
 								}
@@ -271,11 +295,11 @@ namespace ParentSwitch
 
 			private void DrawAccListGroup()
 			{
-				//GUILayout.BeginHorizontal(GUILayout.Height(210), GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
 				GUILayout.BeginHorizontal(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
 				{
 					GUILayout.BeginVertical(GUILayout.ExpandWidth(false));
 					{
+						_parents.Clear();
 						_accListScrollPos = GUILayout.BeginScrollView(_accListScrollPos, false, false, GUIStyle.none, GUI.skin.verticalScrollbar);
 						{
 							int _slotIndex = 0;
@@ -299,9 +323,7 @@ namespace ParentSwitch
 
 				if (_part.type != 120)
 					_parents.Add(_part.parentKey);
-
-				//if (_part.type == 120 || _part.parentKey == _selectedParent)
-				if (_part.type == 120)
+				else
 				{
 					_checkboxList[_slotIndex] = false;
 					return;

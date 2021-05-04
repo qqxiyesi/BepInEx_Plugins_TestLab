@@ -1,8 +1,6 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using UnityEngine;
 using ChaCustom;
 using UniRx;
 
@@ -14,18 +12,21 @@ using HarmonyLib;
 using MoreAccessoriesKOI;
 
 using KKAPI.Maker;
-using KKAPI.Maker.UI;
 using KKAPI.Maker.UI.Sidebar;
 using KKAPI.Utilities;
 
 namespace ParentSwitch
 {
 	[BepInPlugin(GUID, Name, Version)]
+	[BepInDependency("marco.kkapi")]
+	[BepInDependency("com.joan6694.illusionplugins.moreaccessories")]
+	[BepInProcess("Koikatu")]
+	[BepInProcess("Koikatsu Party")]
 	public partial class ParentSwitch : BaseUnityPlugin
 	{
 		public const string GUID = "ParentSwitch";
 		public const string Name = "ParentSwitch";
-		public const string Version = "1.0.2.0";
+		public const string Version = "1.0.3.0";
 
 		internal static ManualLogSource _logger;
 		internal static ParentSwitch _instance;
@@ -36,6 +37,10 @@ namespace ParentSwitch
 		internal static ConfigEntry<float> _cfgMakerWinX;
 		internal static ConfigEntry<float> _cfgMakerWinY;
 		internal static ConfigEntry<bool> _cfgDragPass;
+
+		internal static ConfigEntry<bool> _cfgDebugCamera;
+		internal static ConfigEntry<bool> _cfgDebugTpose;
+		internal static ConfigEntry<bool> _cfgDebugRatio;
 
 		private void Awake()
 		{
@@ -61,6 +66,10 @@ namespace ParentSwitch
 					_makerConfigWindow._windowPos.y = _cfgMakerWinY.Value;
 				}
 			};
+
+			_cfgDebugCamera = Config.Bind("Debug", "Camera Test", false, new ConfigDescription("Don't reset camera on process start", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 17 }));
+			_cfgDebugTpose = Config.Bind("Debug", "Tpose Test", false, new ConfigDescription("Don't set to Tpose on process start", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 16 }));
+			_cfgDebugRatio = Config.Bind("Debug", "Ratio Test", false, new ConfigDescription("Testing scale calculation formula", null, new ConfigurationManagerAttributes { IsAdvanced = true, Order = 15 }));
 		}
 
 		private void Start()

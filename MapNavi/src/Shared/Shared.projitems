@@ -10,6 +10,5 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Shared.Constants.cs" />
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)toolbar_icon.png" />
   </ItemGroup>
 </Project>

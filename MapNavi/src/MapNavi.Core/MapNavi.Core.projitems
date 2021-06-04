@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)toolbar_icon.png" />
   </ItemGroup>
 </Project>

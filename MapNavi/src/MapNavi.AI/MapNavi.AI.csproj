@@ -14,8 +14,8 @@
   </PropertyGroup>
   <Import Project="..\BuildSettings.AI.props" />
   <ItemGroup>
-    <Reference Include="AIAPI, Version=1.18.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\IllusionModdingAPI.AIAPI.1.18.0\lib\net46\AIAPI.dll</HintPath>
+    <Reference Include="AIAPI, Version=1.17.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\IllusionModdingAPI.AIAPI.1.17.0\lib\net46\AIAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">

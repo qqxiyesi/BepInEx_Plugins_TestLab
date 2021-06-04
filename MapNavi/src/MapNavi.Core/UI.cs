@@ -24,7 +24,7 @@ namespace MapNavi
 			private Vector2 _ScreenRes = Vector2.zero;
 			private Vector2 _resScaleFactor = Vector2.one;
 			private Matrix4x4 _resScaleMatrix;
-			private bool _hasFocus = false;
+			//private bool _hasFocus = false;
 			private bool _initStyle = true;
 
 			private readonly GUILayoutOption _gloButtonS = GUILayout.Width(20);
@@ -90,32 +90,36 @@ namespace MapNavi
 				_dragWindowRect = GUILayout.Window(_windowRectID, _windowRect, DrawWindowContents, "", _windowSolid);
 				_windowRect.x = _dragWindowRect.x;
 				_windowRect.y = _dragWindowRect.y;
-
+				/*
 				Event _windowEvent = Event.current;
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = false;
-
-				if (_hasFocus && UI.GetResizedRect(_windowRect).Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+				*/
+				if (/*_hasFocus && */UI.GetResizedRect(_windowRect).Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
 					Input.ResetInputAxes();
 			}
 
 			private void OnEnable()
 			{
-				_hasFocus = true;
+				//_hasFocus = true;
 			}
 
 			private void OnDisable()
 			{
 				_initStyle = true;
-				_hasFocus = false;
+				//_hasFocus = false;
 			}
 
 			private void DrawWindowContents(int _windowID)
 			{
+#if !KK
+				GUI.backgroundColor = Color.grey;
+#endif
+				/*
 				Event _windowEvent = Event.current;
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = true;
-
+				*/
 				GUI.Box(new Rect(0, 0, _windowSize.x, _windowSize.y), _windowBGtex);
 				GUI.Box(new Rect(0, 0, _windowSize.x, 30), "MapNavi", _labelAlignCenter);
 

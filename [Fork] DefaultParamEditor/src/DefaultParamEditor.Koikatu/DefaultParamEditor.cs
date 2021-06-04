@@ -15,7 +15,7 @@ namespace DefaultParamEditor.Koikatu
 	{
 		public const string GUID = "keelhauled.defaultparameditor";
 		public const string PluginName = "DefaultParamEditor";
-		public const string Version = "1.1.1.1";
+		public const string Version = "1.1.2.1";
 
 		private static string savePath = Path.Combine(Paths.ConfigPath, "DefaultParamEditorData.json");
 		private static ParamData data = new ParamData();

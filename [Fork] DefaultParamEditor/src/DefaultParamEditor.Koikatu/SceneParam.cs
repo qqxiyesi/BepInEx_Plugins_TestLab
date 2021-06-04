@@ -66,6 +66,7 @@ namespace DefaultParamEditor.Koikatu
 					{
 						_sceneData.aceNo = info.Slot;
 						_sceneData.aceGUID = info.GUID;
+						_sceneData.aceNo_GUID = info.GUID; // to match upstreams format
 					}
 				}
 				if (sceneInfo.rampG >= UniversalAutoResolver.BaseSlotID)
@@ -75,6 +76,7 @@ namespace DefaultParamEditor.Koikatu
 					{
 						_sceneData.rampG = info.Slot;
 						_sceneData.rampGUID = info.GUID;
+						_sceneData.rampG_GUID = info.GUID; // to match upstreams format
 					}
 				}
 
@@ -133,9 +135,21 @@ namespace DefaultParamEditor.Koikatu
 				if (info != null)
 					sceneInfo.aceNo = info.LocalSlot;
 			}
+			else if (!_sceneData.aceNo_GUID.IsNullOrEmpty()) // to match upstreams format
+			{
+				StudioResolveInfo info = UniversalAutoResolver.LoadedStudioResolutionInfo.FirstOrDefault(x => x.Slot == _sceneData.aceNo && x.GUID == _sceneData.aceNo_GUID);
+				if (info != null)
+					sceneInfo.aceNo = info.LocalSlot;
+			}
 			if (!_sceneData.rampGUID.IsNullOrEmpty())
 			{
 				ResolveInfo info = UniversalAutoResolver.TryGetResolutionInfo(_sceneData.rampG, ChaListDefine.CategoryNo.mt_ramp, _sceneData.rampGUID);
+				if (info != null)
+					sceneInfo.rampG = info.LocalSlot;
+			}
+			else if (!_sceneData.rampG_GUID.IsNullOrEmpty()) // to match upstreams format
+			{
+				ResolveInfo info = UniversalAutoResolver.TryGetResolutionInfo(_sceneData.rampG, ChaListDefine.CategoryNo.mt_ramp, _sceneData.rampG_GUID);
 				if (info != null)
 					sceneInfo.rampG = info.LocalSlot;
 			}

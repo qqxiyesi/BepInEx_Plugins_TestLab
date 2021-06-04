@@ -41,6 +41,7 @@ namespace DefaultParamEditor.Koikatu
 			public bool saved = false;
 
 			public string aceGUID;
+			public string aceNo_GUID; // to match upstreams format
 			public int aceNo;
 			public float aceBlend;
 			public bool enableAOE;
@@ -66,6 +67,7 @@ namespace DefaultParamEditor.Koikatu
 			public Color ambientShadow;
 			public float lineWidthG;
 			public string rampGUID;
+			public string rampG_GUID; // to match upstreams format
 			public int rampG;
 			public float ambientShadowG;
 			public float cameraNearClip;

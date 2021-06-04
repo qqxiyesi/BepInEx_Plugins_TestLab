@@ -8,9 +8,9 @@ using TMPro;
 using HarmonyLib;
 
 using KKAPI.Maker;
-
+#if KK
 using MoreAccessoriesKOI;
-
+#endif
 namespace ParentSwitch
 {
 	public partial class ParentSwitch
@@ -45,6 +45,11 @@ namespace ParentSwitch
 			internal Dictionary<int, bool> _checkboxList = new Dictionary<int, bool>();
 			internal HashSet<string> _parents = new HashSet<string>();
 			internal string _selectedParent = "";
+#if KK
+			private readonly Color _windowBG = new Color(0.5f, 0.5f, 0.5f, 1f);
+#elif KKS
+			private readonly Color _windowBG = new Color(0.2f, 0.2f, 0.2f, 1f);
+#endif
 
 			private void Awake()
 			{
@@ -56,15 +61,16 @@ namespace ParentSwitch
 				_passThrough = _cfgDragPass.Value;
 				_windowRect = new Rect(_windowPos.x, _windowPos.y, _windowSize.x, _windowSize.y);
 				_windowRectID = GUIUtility.GetControlID(FocusType.Passive);
-				_windowBGtex = UI.MakeTex((int) _windowSize.x, (int) _windowSize.y, new Color(0.5f, 0.5f, 0.5f, 1f));
+				_windowBGtex = UI.MakeTex((int) _windowSize.x, (int) _windowSize.y, _windowBG);
 			}
 
 			private void OnGUI()
 			{
 				if (CustomBase.Instance?.chaCtrl == null) return;
 				if (CustomBase.Instance.customCtrl.hideFrontUI) return;
+#if KK
 				if (!Manager.Scene.Instance.AddSceneName.IsNullOrEmpty() && Manager.Scene.Instance.AddSceneName != "CustomScene") return;
-
+#endif
 				if (_ScreenRes.x != Screen.width || _ScreenRes.y != Screen.height)
 					ChangeRes();
 
@@ -122,6 +128,9 @@ namespace ParentSwitch
 
 			private void DrawWindowContents(int _windowID)
 			{
+#if KKS
+				GUI.backgroundColor = Color.grey;
+#endif
 				Event _windowEvent = Event.current;
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = true;
@@ -168,9 +177,12 @@ namespace ParentSwitch
 							{
 								if (GUILayout.Button("All", GUILayout.Width(60)))
 								{
+#if KK
 									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
 									int _count = (int) _additionalData?.nowAccessories?.Count + 20;
-
+#else
+									int _count = 20;
+#endif
 									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
 										_checkboxList[_slotIndex] = true;
 								}
@@ -219,10 +231,12 @@ namespace ParentSwitch
 										_chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
 										_chaCtrl.AnimPlay("tpose");
 									}
-
+#if KK
 									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
-									int _count = (int)_additionalData?.nowAccessories?.Count + 20;
-
+									int _count = (int) _additionalData?.nowAccessories?.Count + 20;
+#else
+									int _count = 20;
+#endif
 									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
 									{
 										if (_checkboxList[_slotIndex])

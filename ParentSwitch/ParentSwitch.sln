@@ -3,9 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParentSwitch", "src\ParentSwitch.csproj", "{32DEB8CE-4AF2-4458-AC87-359508C0ADAE}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ParentSwitch.Core", "src\ParentSwitch.Core\ParentSwitch.Core.shproj", "{5A8FDB27-FFCA-4A77-AB0F-AFDEF9A034ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParentSwitch.KK", "src\ParentSwitch.KK\ParentSwitch.KK.csproj", "{32DEB8CE-4AF2-4458-AC87-359508C0ADAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParentSwitch.KKS", "src\ParentSwitch.KKS\ParentSwitch.KKS.csproj", "{33542CC5-6554-422E-9FF4-A9B3A9924580}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\ParentSwitch.Core\ParentSwitch.Core.projitems*{32deb8ce-4af2-4458-ac87-359508c0adae}*SharedItemsImports = 4
+		src\ParentSwitch.Core\ParentSwitch.Core.projitems*{33542cc5-6554-422e-9ff4-a9b3a9924580}*SharedItemsImports = 4
+		src\ParentSwitch.Core\ParentSwitch.Core.projitems*{5a8fdb27-ffca-4a77-ab0f-afdef9a034ed}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -15,6 +24,10 @@ Global
 		{32DEB8CE-4AF2-4458-AC87-359508C0ADAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32DEB8CE-4AF2-4458-AC87-359508C0ADAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32DEB8CE-4AF2-4458-AC87-359508C0ADAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33542CC5-6554-422E-9FF4-A9B3A9924580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33542CC5-6554-422E-9FF4-A9B3A9924580}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33542CC5-6554-422E-9FF4-A9B3A9924580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33542CC5-6554-422E-9FF4-A9B3A9924580}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

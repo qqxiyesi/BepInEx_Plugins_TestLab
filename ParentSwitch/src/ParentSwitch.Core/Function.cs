@@ -7,9 +7,9 @@ using MessagePack;
 using ChaCustom;
 
 using KKAPI.Maker;
-
+#if KK
 using MoreAccessoriesKOI;
-
+#endif
 namespace ParentSwitch
 {
 	public partial class ParentSwitch
@@ -17,8 +17,11 @@ namespace ParentSwitch
 		internal static void ChangeParent(int slotNo, string parentStr)
 		{
 			ChaControl chaCtrl = CustomBase.Instance.chaCtrl;
+#if KK
 			List<ChaFileAccessory.PartsInfo> nowAccessories = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile)?.nowAccessories ?? new List<ChaFileAccessory.PartsInfo>();
-
+#else
+			List<ChaFileAccessory.PartsInfo> nowAccessories = new List<ChaFileAccessory.PartsInfo>();
+#endif
 			ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo();
 			if (slotNo < 20)
 				part = chaCtrl.nowCoordinate.accessory.parts[slotNo];
@@ -86,7 +89,7 @@ namespace ParentSwitch
 			n_move.position = position;
 			n_move.rotation = rotation;
 			part.addMove[0, 0] = new Vector3(float.Parse((n_move.localPosition.x * 100f).ToString("f2")), float.Parse((n_move.localPosition.y * 100f).ToString("f2")), float.Parse((n_move.localPosition.z * 100f).ToString("f2")));
-			part.addMove[0, 1] = new Vector3(float.Parse(n_move.localEulerAngles.x.ToString("f2")) % 360f, float.Parse(n_move.localEulerAngles.y.ToString("f2")) % 360f, float.Parse(n_move.localEulerAngles.z.ToString("f2")) % 360f);
+			part.addMove[0, 1] = new Vector3((float.Parse(n_move.localEulerAngles.x.ToString("f2")) + 360f) % 360f, (float.Parse(n_move.localEulerAngles.y.ToString("f2")) + 360f) % 360f, (float.Parse(n_move.localEulerAngles.z.ToString("f2")) + 360f) % 360f);
 			part.addMove[0, 2] = new Vector3(float.Parse(n_move.localScale.x.ToString("f2")), float.Parse(n_move.localScale.y.ToString("f2")), float.Parse(n_move.localScale.z.ToString("f2")));
 
 			if (n_move2 != null && !underN)
@@ -94,7 +97,7 @@ namespace ParentSwitch
 				n_move2.position = position2;
 				n_move2.rotation = rotation2;
 				part.addMove[1, 0] = new Vector3(float.Parse((n_move2.localPosition.x * 100f).ToString("f2")), float.Parse((n_move2.localPosition.y * 100f).ToString("f2")), float.Parse((n_move2.localPosition.z * 100f).ToString("f2")));
-				part.addMove[1, 1] = new Vector3(float.Parse(n_move2.localEulerAngles.x.ToString("f2")) % 360f, float.Parse(n_move2.localEulerAngles.y.ToString("f2")) % 360f, float.Parse(n_move2.localEulerAngles.z.ToString("f2")) % 360f);
+				part.addMove[1, 1] = new Vector3((float.Parse(n_move2.localEulerAngles.x.ToString("f2")) + 360f) % 360f, (float.Parse(n_move2.localEulerAngles.y.ToString("f2")) + 360f) % 360f, (float.Parse(n_move2.localEulerAngles.z.ToString("f2")) + 360f) % 360f);
 				part.addMove[1, 2] = new Vector3(float.Parse(n_move2.localScale.x.ToString("f2")), float.Parse(n_move2.localScale.y.ToString("f2")), float.Parse(n_move2.localScale.z.ToString("f2")));
 			}
 

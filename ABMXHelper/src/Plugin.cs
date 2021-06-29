@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-using UnityEngine;
 using ParadoxNotion.Serialization;
 
 using BepInEx;
@@ -18,14 +16,14 @@ namespace ABMXHelper
 {
 	[BepInProcess("Koikatu")]
 	[BepInProcess("Koikatsu Party")]
-	[BepInPlugin(GUID, PluginName, Version)]
+	[BepInPlugin(GUID, Name, Version)]
 	[BepInDependency("marco.kkapi")]
-	[BepInDependency("com.deathweasel.bepinex.materialeditor", "2.5")]
+	[BepInDependency("KKABMX.Core")]
 	public class ABMXHelper : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.abmxh";
-		public const string PluginName = "Boner Helper";
-		public const string Version = "1.0.0.0";
+		public const string Name = "Boner Helper";
+		public const string Version = "1.0.1.0";
 
 		private void Start()
 		{
@@ -61,11 +59,11 @@ namespace ABMXHelper
 						return;
 					}
 
-					Dictionary<string, BoneModifierData> _dataDic = JSONSerializer.Deserialize<Dictionary<string, BoneModifierData>>(File.ReadAllText(_saveFile));
+					Dictionary<string, BoneModifierData> _dictionary = JSONSerializer.Deserialize<Dictionary<string, BoneModifierData>>(File.ReadAllText(_saveFile));
 					ChaControl _chaCtrl = MakerAPI.GetCharacterControl();
 					BoneController _pluginCtrl = _chaCtrl?.gameObject?.GetComponent<BoneController>();
 
-					foreach (KeyValuePair<string, BoneModifierData> x in _dataDic)
+					foreach (KeyValuePair<string, BoneModifierData> x in _dictionary)
 					{
 						if (_pluginCtrl.GetModifier(x.Key) == null)
 							_pluginCtrl.AddModifier(new BoneModifier(x.Key));
@@ -99,7 +97,7 @@ namespace ABMXHelper
 			ChaControl _chaCtrl = MakerAPI.GetCharacterControl();
 			BoneController _pluginCtrl = _chaCtrl?.gameObject?.GetComponent<BoneController>();
 
-			Dictionary<string, BoneModifierData> _dataDic = new Dictionary<string, BoneModifierData>();
+			Dictionary<string, BoneModifierData> _dictionary = new Dictionary<string, BoneModifierData>();
 			List<BoneModifier> _modifiers = _pluginCtrl.Modifiers;
 			int _currentCoordinateIndex = _chaCtrl.fileStatus.coordinateType;
 
@@ -112,11 +110,11 @@ namespace ABMXHelper
 				if (CompareModifiers(_data, new BoneModifierData()))
 					continue;
 
-				_dataDic[_modifiers[i].BoneName] = _data.Clone();
+				_dictionary[_modifiers[i].BoneName] = _data.Clone();
 			}
 
-			_dataDic = _dataDic.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-			string _json = JSONSerializer.Serialize(_dataDic.GetType(), _dataDic, true);
+			_dictionary = _dictionary.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+			string _json = JSONSerializer.Serialize(_dictionary.GetType(), _dictionary, true);
 
 			return _json;
 		}

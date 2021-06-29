@@ -13,7 +13,7 @@ using KKAPI.Maker.UI.Sidebar;
 
 namespace MovUrAcc
 {
-	[BepInPlugin(GUID, PluginName, Version)]
+	[BepInPlugin(GUID, Name, Version)]
 	[BepInDependency("marco.kkapi")]
 	[BepInDependency("com.joan6694.illusionplugins.moreaccessories")]
 #if HS2
@@ -28,8 +28,8 @@ namespace MovUrAcc
 #elif AI
 		public const string GUID = "madevil.ai.MovUrAcc";
 #endif
-		public const string PluginName = "MovUrAcc";
-		public const string Version = "1.5.1.0";
+		public const string Name = "MovUrAcc";
+		public const string Version = "1.5.2.0";
 
 		internal static new ManualLogSource Logger;
 		internal static bool btnLock = false;

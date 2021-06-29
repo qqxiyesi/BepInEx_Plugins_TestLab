@@ -21,7 +21,7 @@ namespace MovUrAcc
 
 				_windowRectID = GUIUtility.GetControlID(FocusType.Passive);
 				_windowRect = new Rect(340, 210, _windowSize.x, _windowSize.y);
-				_windowBGtex = MakeTex((int)_windowSize.x, (int)_windowSize.y, new Color(0.2f, 0.2f, 0.2f, 1f));
+				_windowBGtex = MakeTex((int) _windowSize.x, (int) _windowSize.y, new Color(0.2f, 0.2f, 0.2f, 1f));
 			}
 
 			private void OnGUI()
@@ -53,6 +53,7 @@ namespace MovUrAcc
 				if (EventType.MouseDown == _windowEvent.type || EventType.MouseUp == _windowEvent.type || EventType.MouseDrag == _windowEvent.type || EventType.MouseMove == _windowEvent.type)
 					_hasFocus = true;
 
+				GUI.backgroundColor = Color.grey;
 				GUI.Box(new Rect(0, 0, _windowSize.x, _windowSize.y), _windowBGtex);
 				GUI.Box(new Rect(0, 0, _windowSize.x, 23), $"MovUrAcc", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
 

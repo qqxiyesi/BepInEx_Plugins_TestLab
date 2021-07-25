@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,24 +14,35 @@ using KK_Plugins;
 namespace ACDBS
 {
 	[BepInDependency("com.deathweasel.bepinex.accessoryclothes")]
+	[BepInDependency("com.rclcircuit.bepinex.modboneimplantor")]
 	[BepInPlugin(GUID, Name, Version)]
 	public class ACDBS : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.ACDBS";
 		public const string Name = "Accessory Clothes Dynamic Bone Support";
-		public const string Version = "1.0.0.0";
+		public const string Version = "1.1.0.0";
 
 		private static ManualLogSource _logger;
-		private static Harmony _hookInstance = null;
+		private static Harmony _hooksInstance = null;
 
 		private void Awake()
 		{
 			_logger = base.Logger;
-			_hookInstance = Harmony.CreateAndPatchAll(typeof(Hooks));
+			_hooksInstance = Harmony.CreateAndPatchAll(typeof(Hooks));
+
+			BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.rclcircuit.bepinex.modboneimplantor", out PluginInfo _pluginInfo);
+			Type AssignedAnotherWeightsHooks = _pluginInfo.Instance.GetType().Assembly.GetType("ModBoneImplantor.ModBoneImplantor+AssignedAnotherWeightsHooks");
+			_hooksInstance.Patch(AssignedAnotherWeightsHooks.GetMethod("AssignWeightsAndImplantBones", AccessTools.all, null, new[] { typeof(AssignedAnotherWeights), typeof(GameObject), typeof(string), typeof(Bounds), typeof(Transform) }, null), prefix: new HarmonyMethod(typeof(Hooks), nameof(Hooks.AssignWeightsAndImplantBones_prefix)));
 		}
 
 		internal static class Hooks
 		{
+			internal static void AssignWeightsAndImplantBones_prefix(ref GameObject obj)
+			{
+				if (obj.GetComponentsInParent<ChaAccessoryClothes>(true)?.FirstOrDefault() != null)
+					obj = obj.GetComponentsInParent<ChaAccessoryClothes>(true).First().gameObject;
+			}
+
 			private static Dictionary<ChaAccessoryClothes, Dictionary<DynamicBone, string>> _pool = new Dictionary<ChaAccessoryClothes, Dictionary<DynamicBone, string>>();
 
 			[HarmonyPrefix, HarmonyPatch(typeof(ChaAccessoryClothes), "Start")]

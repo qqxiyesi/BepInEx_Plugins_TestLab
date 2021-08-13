@@ -64,6 +64,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
-  <Import Project="..\StartupCameraRecall.Core\Core.StartupCameraRecall.projitems" Label="Shared" />
+  <Import Project="..\StartupCameraRecall.Core\StartupCameraRecall.Core.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

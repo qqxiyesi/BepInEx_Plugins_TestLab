@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.Events;
 using Studio;
 #if !KK
 using TMPro;
@@ -27,13 +26,12 @@ namespace StudioCharaReload
 	{
 		public const string GUID = "StudioCharaReload";
 		public const string PluginName = "Studio Chara Reload";
-		public const string Version = "1.0.1.0";
+		public const string Version = "1.0.3.0";
 
 		private static new ManualLogSource Logger;
 		private static bool Loaded = false;
 
 		private static ConfigEntry<KeyboardShortcut> CfgShortcut { get; set; }
-		private static bool DuringLoading = false;
 
 		private void Awake()
 		{
@@ -72,14 +70,6 @@ namespace StudioCharaReload
 
 		internal static void ReloadChara()
 		{
-			if (DuringLoading)
-			{
-				Logger.LogMessage($"Please wait for current process finish");
-				return;
-			}
-
-			DuringLoading = true;
-
 			IEnumerable<OCIChar> _OCIChar = GetSelectedCharacters();
 
 			int i = 0;
@@ -94,7 +84,6 @@ namespace StudioCharaReload
 				File.Delete(CardPath);
 				i++;
 			}
-			DuringLoading = false;
 		}
 
 		// codes from KKAPI

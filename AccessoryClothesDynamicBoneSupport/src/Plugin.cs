@@ -15,27 +15,31 @@ namespace ACDBS
 {
 	[BepInDependency("com.deathweasel.bepinex.accessoryclothes")]
 	[BepInDependency("com.rclcircuit.bepinex.modboneimplantor")]
+	[BepInDependency("marco.kkapi", "1.17")]
 	[BepInPlugin(GUID, Name, Version)]
-	public class ACDBS : BaseUnityPlugin
+	public partial class ACDBS : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.ACDBS";
 		public const string Name = "Accessory Clothes Dynamic Bone Support";
-		public const string Version = "1.1.0.0";
+		public const string Version = "1.2.0.0";
 
 		private static ManualLogSource _logger;
 		private static Harmony _hooksInstance = null;
 
+		private static Type DynamicBoneEditorUI = null;
+
 		private void Awake()
 		{
 			_logger = base.Logger;
-			_hooksInstance = Harmony.CreateAndPatchAll(typeof(Hooks));
-
-			BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.rclcircuit.bepinex.modboneimplantor", out PluginInfo _pluginInfo);
-			Type AssignedAnotherWeightsHooks = _pluginInfo.Instance.GetType().Assembly.GetType("ModBoneImplantor.ModBoneImplantor+AssignedAnotherWeightsHooks");
-			_hooksInstance.Patch(AssignedAnotherWeightsHooks.GetMethod("AssignWeightsAndImplantBones", AccessTools.all, null, new[] { typeof(AssignedAnotherWeights), typeof(GameObject), typeof(string), typeof(Bounds), typeof(Transform) }, null), prefix: new HarmonyMethod(typeof(Hooks), nameof(Hooks.AssignWeightsAndImplantBones_prefix)));
+			_hooksInstance = Harmony.CreateAndPatchAll(typeof(Hooks), GUID);
+			{
+				BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.rclcircuit.bepinex.modboneimplantor", out PluginInfo _pluginInfo);
+				Type AssignedAnotherWeightsHooks = _pluginInfo.Instance.GetType().Assembly.GetType("ModBoneImplantor.ModBoneImplantor+AssignedAnotherWeightsHooks");
+				_hooksInstance.Patch(AssignedAnotherWeightsHooks.GetMethod("AssignWeightsAndImplantBones", AccessTools.all, null, new[] { typeof(AssignedAnotherWeights), typeof(GameObject), typeof(string), typeof(Bounds), typeof(Transform) }, null), prefix: new HarmonyMethod(typeof(Hooks), nameof(Hooks.AssignWeightsAndImplantBones_prefix)));
+			}
 		}
 
-		internal static class Hooks
+		internal static partial class Hooks
 		{
 			internal static void AssignWeightsAndImplantBones_prefix(ref GameObject obj)
 			{
@@ -56,15 +60,15 @@ namespace ACDBS
 			[HarmonyPostfix, HarmonyPatch(typeof(ChaAccessoryClothes), "Start")]
 			private static void ChaAccessoryClothes_Start_Postfix(ChaAccessoryClothes __instance)
 			{
-				if (!_pool.ContainsKey(__instance)) return;
+				if (__instance == null || !_pool.ContainsKey(__instance)) return;
+				ChaControl _chaCtrl = __instance.GetComponentInParent<ChaControl>();
 
-				__instance.StartCoroutine(Wait());
+				_chaCtrl.StartCoroutine(Wait());
 
 				IEnumerator Wait()
 				{
 					yield return null;
 
-					ChaControl _chaCtrl = __instance.GetComponentInParent<ChaControl>();
 					foreach (KeyValuePair<DynamicBone, string> _item in _pool[__instance])
 					{
 						_item.Key.m_Root = _chaCtrl.GetComponentsInChildren<Transform>(true)?.FirstOrDefault(x => x.name == _item.Value);

@@ -15,13 +15,17 @@ namespace ACDBS
 {
 	[BepInDependency("com.deathweasel.bepinex.accessoryclothes")]
 	[BepInDependency("com.rclcircuit.bepinex.modboneimplantor")]
+#if KK
 	[BepInDependency("marco.kkapi", "1.17")]
+#elif KKS
+	[BepInDependency("marco.kkapi", "1.24")]
+#endif
 	[BepInPlugin(GUID, Name, Version)]
 	public partial class ACDBS : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.ACDBS";
 		public const string Name = "Accessory Clothes Dynamic Bone Support";
-		public const string Version = "1.2.0.0";
+		public const string Version = "1.3.0.0";
 
 		private static ManualLogSource _logger;
 		private static Harmony _hooksInstance = null;

@@ -7,9 +7,8 @@ using MessagePack;
 using ChaCustom;
 
 using KKAPI.Maker;
-#if KK
-using MoreAccessoriesKOI;
-#endif
+using JetPack;
+
 namespace ParentSwitch
 {
 	public partial class ParentSwitch
@@ -17,16 +16,8 @@ namespace ParentSwitch
 		internal static void ChangeParent(int slotNo, string parentStr)
 		{
 			ChaControl chaCtrl = CustomBase.Instance.chaCtrl;
-#if KK
-			List<ChaFileAccessory.PartsInfo> nowAccessories = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile)?.nowAccessories ?? new List<ChaFileAccessory.PartsInfo>();
-#else
-			List<ChaFileAccessory.PartsInfo> nowAccessories = new List<ChaFileAccessory.PartsInfo>();
-#endif
-			ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo();
-			if (slotNo < 20)
-				part = chaCtrl.nowCoordinate.accessory.parts[slotNo];
-			else
-				part = nowAccessories.ElementAtOrDefault(slotNo - 20);
+			List<ChaFileAccessory.PartsInfo> nowAccessories = Accessory.ListNowAccessories(chaCtrl);
+			ChaFileAccessory.PartsInfo part = nowAccessories.ElementAtOrDefault(slotNo);
 
 			if (part == null || part.type == 120 || part.parentKey == parentStr) return;
 
@@ -71,7 +62,7 @@ namespace ParentSwitch
 			bool underN = false;
 
 			if (n_move2 != null)
-            {
+			{
 				underN = n_move.GetComponentsInChildren<Transform>().Any(x => x.name == "N_move2"); // N_move2 under N_move case
 				if (underN)
 					n_move2.localScale = scale2;

@@ -8,9 +8,8 @@ using TMPro;
 using HarmonyLib;
 
 using KKAPI.Maker;
-#if KK
-using MoreAccessoriesKOI;
-#endif
+using JetPack;
+
 namespace ParentSwitch
 {
 	public partial class ParentSwitch
@@ -177,12 +176,7 @@ namespace ParentSwitch
 							{
 								if (GUILayout.Button("All", GUILayout.Width(60)))
 								{
-#if KK
-									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
-									int _count = (int) _additionalData?.nowAccessories?.Count + 20;
-#else
-									int _count = 20;
-#endif
+									int _count = ListPartsInfo().Count;
 									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
 										_checkboxList[_slotIndex] = true;
 								}
@@ -231,12 +225,8 @@ namespace ParentSwitch
 										_chaCtrl.LoadAnimation("studio/anime/00.unity3d", "tpose");
 										_chaCtrl.AnimPlay("tpose");
 									}
-#if KK
-									MoreAccessories.CharAdditionalData _additionalData = _accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile);
-									int _count = (int) _additionalData?.nowAccessories?.Count + 20;
-#else
-									int _count = 20;
-#endif
+
+									int _count = ListPartsInfo().Count;
 									for (int _slotIndex = 0; _slotIndex < _count; _slotIndex++)
 									{
 										if (_checkboxList[_slotIndex])

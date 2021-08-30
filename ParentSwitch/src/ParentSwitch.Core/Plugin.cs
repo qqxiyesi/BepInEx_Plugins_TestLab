@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 using ChaCustom;
 using UniRx;
@@ -8,27 +7,28 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-#if KK
-using MoreAccessoriesKOI;
-#endif
+
 using KKAPI.Maker;
 using KKAPI.Maker.UI.Sidebar;
 using KKAPI.Utilities;
+using JetPack;
 
 namespace ParentSwitch
 {
 #if KK
 	[BepInProcess("Koikatu")]
 	[BepInProcess("Koikatsu Party")]
-	[BepInDependency("com.joan6694.illusionplugins.moreaccessories", "1.0.9")]
-#endif
 	[BepInDependency("marco.kkapi", "1.17")]
+#elif KKS
+	[BepInProcess("KoikatsuSunshine")]
+	[BepInDependency("marco.kkapi", "1.23")]
+#endif
 	[BepInPlugin(GUID, Name, Version)]
 	public partial class ParentSwitch : BaseUnityPlugin
 	{
 		public const string GUID = "ParentSwitch";
 		public const string Name = "ParentSwitch";
-		public const string Version = "1.0.4.0";
+		public const string Version = "1.1.0.0";
 
 		internal static ManualLogSource _logger;
 		internal static ParentSwitch _instance;
@@ -78,9 +78,6 @@ namespace ParentSwitch
 		{
 			MakerAPI.RegisterCustomSubCategories += (_sender, _args) =>
 			{
-#if KK
-				_accessoriesByChar = Traverse.Create(MoreAccessories._self).Field("_accessoriesByChar").GetValue();
-#endif
 				_makerConfigWindow = _instance.gameObject.AddComponent<ParentSwitchUI>();
 
 				_sidebarToggleEnable = _args.AddSidebarControl(new SidebarToggle(Name, false, _instance));
@@ -100,20 +97,14 @@ namespace ParentSwitch
 				Destroy(_makerConfigWindow);
 
 				_sidebarToggleEnable = null;
-				_accessoriesByChar = null;
 			};
 		}
 
 		internal static ChaControl _chaCtrl => CustomBase.Instance?.chaCtrl;
-		internal static object _accessoriesByChar = null;
 
 		internal static List<ChaFileAccessory.PartsInfo> ListPartsInfo()
 		{
-			List<ChaFileAccessory.PartsInfo> _partInfo = _chaCtrl.nowCoordinate.accessory.parts.ToList();
-#if KK
-			_partInfo.AddRange(_accessoriesByChar.RefTryGetValue<MoreAccessories.CharAdditionalData>(_chaCtrl.chaFile)?.nowAccessories ?? new List<ChaFileAccessory.PartsInfo>());
-#endif
-			return _partInfo;
+			return Accessory.ListNowAccessories(_chaCtrl);
 		}
 
 		internal static class Hooks

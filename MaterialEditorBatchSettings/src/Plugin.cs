@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 using BepInEx;
 using BepInEx.Configuration;
-using UnityEngine;
 
 using KKAPI.Maker;
 using KKAPI.Maker.UI;
@@ -20,42 +21,44 @@ namespace MaterialEditorBatchSettings
 	[BepInProcess("Koikatu")]
 	[BepInProcess("Koikatsu Party")]
 	[BepInPlugin(GUID, PluginName, Version)]
-	[BepInDependency("marco.kkapi", "1.1.5")]
-	[BepInDependency("com.deathweasel.bepinex.materialeditor", "2.5")]
+	[BepInDependency("marco.kkapi")]
+	[BepInDependency("com.deathweasel.bepinex.materialeditor", "3.1.4")]
 	[BepInDependency("com.joan6694.illusionplugins.moreaccessories")]
 	public class MaterialEditorBatchSettings : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.mebs";
 		public const string PluginName = "Material Editor Batch Settings";
-		public const string Version = "2.2.2.0";
+		public const string Version = "2.7.0.0";
 
-		internal static ConfigEntry<bool> EnableShadowCastingMode { get; private set; }
-		internal static ConfigEntry<ShadowCastingMode> DefaultShadowCastingMode { get; private set; }
-		internal static ConfigEntry<bool> EnableReceiveShadows { get; private set; }
-		internal static ConfigEntry<ReceiveShadows> DefaultReceiveShadows { get; private set; }
+		internal static ConfigEntry<bool> EnableShadowCastingMode;
+		internal static ConfigEntry<ShadowCastingMode> DefaultShadowCastingMode;
+		internal static ConfigEntry<bool> EnableReceiveShadows;
+		internal static ConfigEntry<ReceiveShadows> DefaultReceiveShadows;
 
-		internal static ConfigEntry<bool> EnableRimV { get; private set; }
-		internal static ConfigEntry<float> DefaultRimV { get; private set; }
-		internal static ConfigEntry<bool> EnableRimPower { get; private set; }
-		internal static ConfigEntry<float> DefaultRimPower { get; private set; }
+		internal static ConfigEntry<bool> EnableRimV;
+		internal static ConfigEntry<float> DefaultRimV;
+		internal static ConfigEntry<bool> EnableRimPower;
+		internal static ConfigEntry<float> DefaultRimPower;
+		internal static ConfigEntry<bool> EnableIBLRimPower;
+		internal static ConfigEntry<float> DefaultIBLRimPower;
 
-		internal static ConfigEntry<bool> EnableShadowColor { get; private set; }
-		internal static ConfigEntry<float> DefaultShadowColorR { get; private set; }
-		internal static ConfigEntry<float> DefaultShadowColorG { get; private set; }
-		internal static ConfigEntry<float> DefaultShadowColorB { get; private set; }
-		internal static ConfigEntry<float> DefaultShadowColorA { get; private set; }
+		internal static ConfigEntry<bool> EnableShadowColor;
+		internal static ConfigEntry<float> DefaultShadowColorR;
+		internal static ConfigEntry<float> DefaultShadowColorG;
+		internal static ConfigEntry<float> DefaultShadowColorB;
+		internal static ConfigEntry<float> DefaultShadowColorA;
 
-		internal static ConfigEntry<bool> EnableHairShadowColor { get; private set; }
-		internal static ConfigEntry<float> DefaultHairShadowColorR { get; private set; }
-		internal static ConfigEntry<float> DefaultHairShadowColorG { get; private set; }
-		internal static ConfigEntry<float> DefaultHairShadowColorB { get; private set; }
-		internal static ConfigEntry<float> DefaultHairShadowColorA { get; private set; }
+		internal static ConfigEntry<bool> EnableHairShadowColor;
+		internal static ConfigEntry<float> DefaultHairShadowColorR;
+		internal static ConfigEntry<float> DefaultHairShadowColorG;
+		internal static ConfigEntry<float> DefaultHairShadowColorB;
+		internal static ConfigEntry<float> DefaultHairShadowColorA;
 
-		internal static ConfigEntry<bool> EnableSpeclarHeight { get; private set; }
-		internal static ConfigEntry<float> DefaultSpeclarHeight { get; private set; }
+		internal static ConfigEntry<bool> EnableSpeclarHeight;
+		internal static ConfigEntry<float> DefaultSpeclarHeight;
 
-		internal static ConfigEntry<int> DefaultRenderQueueHairFront { get; private set; }
-		internal static ConfigEntry<int> DefaultRenderQueueHair { get; private set; }
+		internal static ConfigEntry<int> DefaultRenderQueueHairFront;
+		internal static ConfigEntry<int> DefaultRenderQueueHair;
 
 		private void Start()
 		{
@@ -64,10 +67,12 @@ namespace MaterialEditorBatchSettings
 			EnableReceiveShadows = Config.Bind("Renderer", "Set Receive Shadows", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 1 }));
 			DefaultReceiveShadows = Config.Bind("Renderer", "Default Receive Shadows", ReceiveShadows.Off, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 0 }));
 
-			EnableRimV = Config.Bind("Rim", "Set rimV", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 3 }));
-			DefaultRimV = Config.Bind("Rim", "Default rimV", 0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 2 }));
-			EnableRimPower = Config.Bind("Rim", "Set rimpower", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 1 }));
-			DefaultRimPower = Config.Bind("Rim", "Default rimpower", 0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 0 }));
+			EnableRimV = Config.Bind("Rim", "Set rimV", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 5 }));
+			DefaultRimV = Config.Bind("Rim", "Default rimV", 0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 4 }));
+			EnableRimPower = Config.Bind("Rim", "Set rimpower", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 3 }));
+			DefaultRimPower = Config.Bind("Rim", "Default rimpower", 0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 2 }));
+			EnableIBLRimPower = Config.Bind("Rim", "Set IBL rimpower", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 1 }));
+			DefaultIBLRimPower = Config.Bind("Rim", "Default IBL rimpower", 1f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 0 }));
 
 			EnableShadowColor = Config.Bind("ShadowColor", "Set Shadow Color", false, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 10 }));
 			DefaultShadowColorR = Config.Bind("ShadowColor", "ShadowColorR", 0f, new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = 3 }));
@@ -90,40 +95,15 @@ namespace MaterialEditorBatchSettings
 			MakerAPI.RegisterCustomSubCategories += (object sender, RegisterSubCategoriesEvent ev) =>
 			{
 				MakerCategory category = new MakerCategory("05_ParameterTop", "tglMEBS", MakerConstants.Parameter.Attribute.Position + 1, "MEBS");
+				ev.AddSubCategory(category);
 
-				#region Renderer
-				var EnableShadowCastingModeToggle = new MakerToggle(category, "Shadow Casting Mode", EnableShadowCastingMode.Value, this);
-				ev.AddControl(EnableShadowCastingModeToggle);
-				EnableShadowCastingModeToggle.ValueChanged.Subscribe(Observer.Create<bool>(value =>
+				var btnApply = new MakerButton("Apply", category, this);
+				ev.AddControl(btnApply);
+				btnApply.OnClick.AddListener(delegate
 				{
-					if (MakerAPI.InsideAndLoaded)
-						EnableShadowCastingMode.Value = EnableShadowCastingModeToggle.Value;
-				}));
-				var ShadowCastingModeList = Enum.GetNames(typeof(ShadowCastingMode)).ToList();
-				var ShadowCastingModeDropdown = new MakerDropdown("Value", ShadowCastingModeList.ToArray(), category, (int) DefaultShadowCastingMode.Value, this);
-				ev.AddControl(ShadowCastingModeDropdown);
-				ShadowCastingModeDropdown.ValueChanged.Subscribe(Observer.Create<int>(value =>
-				{
-					if (MakerAPI.InsideAndLoaded)
-						DefaultShadowCastingMode.Value = (ShadowCastingMode) ShadowCastingModeDropdown.Value;
-				}));
-
-				var EnableReceiveShadowsToggle = new MakerToggle(category, "Receive Shadows", EnableReceiveShadows.Value, this);
-				ev.AddControl(EnableReceiveShadowsToggle);
-				EnableReceiveShadowsToggle.ValueChanged.Subscribe(Observer.Create<bool>(value =>
-				{
-					if (MakerAPI.InsideAndLoaded)
-						EnableReceiveShadows.Value = EnableReceiveShadowsToggle.Value;
-				}));
-				var ReceiveShadowsList = Enum.GetNames(typeof(ReceiveShadows)).ToList();
-				var ReceiveShadowsDropdown = new MakerDropdown("Value", ReceiveShadowsList.ToArray(), category, (int) DefaultReceiveShadows.Value, this);
-				ev.AddControl(ReceiveShadowsDropdown);
-				ReceiveShadowsDropdown.ValueChanged.Subscribe(Observer.Create<int>(value =>
-				{
-					if (MakerAPI.InsideAndLoaded)
-						DefaultReceiveShadows.Value = (ReceiveShadows) ReceiveShadowsDropdown.Value;
-				}));
-				#endregion
+					ApplySettings();
+					ChaCustom.CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
+				});
 
 				ev.AddControl(new MakerSeparator(category, this));
 
@@ -246,6 +226,43 @@ namespace MaterialEditorBatchSettings
 					else
 						DefaultRimPower.Value = float.Parse(s);
 				});
+				var EnableIBLRimPowerToggle = new MakerToggle(category, "rimpower", EnableIBLRimPower.Value, this);
+				ev.AddControl(EnableIBLRimPowerToggle);
+				EnableIBLRimPowerToggle.ValueChanged.Subscribe(Observer.Create<bool>(value =>
+				{
+					if (MakerAPI.InsideAndLoaded)
+						EnableIBLRimPower.Value = EnableIBLRimPowerToggle.Value;
+				}));
+				var IBLRimPowerTextbox = ev.AddControl(new MakerTextbox(category, "Value", DefaultIBLRimPower.DefaultValue.ToString(), this));
+				IBLRimPowerTextbox.ValueChanged.Subscribe(s =>
+				{
+					if (string.IsNullOrEmpty(s))
+						IBLRimPowerTextbox.Value = DefaultIBLRimPower.DefaultValue.ToString();
+					else
+						DefaultIBLRimPower.Value = float.Parse(s);
+				});
+				#endregion
+
+				ev.AddControl(new MakerSeparator(category, this));
+
+				#region RenderQueue
+				ev.AddControl(new MakerText("RenderQueue", category, this));
+				var RenderQueueHairFrontTextbox = ev.AddControl(new MakerTextbox(category, "HairFront", DefaultRenderQueueHairFront.DefaultValue.ToString(), this));
+				RenderQueueHairFrontTextbox.ValueChanged.Subscribe(s =>
+				{
+					if (string.IsNullOrEmpty(s))
+						RenderQueueHairFrontTextbox.Value = DefaultRenderQueueHairFront.DefaultValue.ToString();
+					else
+						DefaultRenderQueueHairFront.Value = int.Parse(s);
+				});
+				var RenderQueueHairTextbox = ev.AddControl(new MakerTextbox(category, "Hair", DefaultRenderQueueHair.DefaultValue.ToString(), this));
+				RenderQueueHairTextbox.ValueChanged.Subscribe(s =>
+				{
+					if (string.IsNullOrEmpty(s))
+						RenderQueueHairTextbox.Value = DefaultRenderQueueHair.DefaultValue.ToString();
+					else
+						DefaultRenderQueueHair.Value = int.Parse(s);
+				});
 				#endregion
 
 				ev.AddControl(new MakerSeparator(category, this));
@@ -270,37 +287,39 @@ namespace MaterialEditorBatchSettings
 
 				ev.AddControl(new MakerSeparator(category, this));
 
-				#region RenderQueue
-				//ev.AddControl(new MakerText("RenderQueue", category, this));
-				var RenderQueueHairFrontTextbox = ev.AddControl(new MakerTextbox(category, "HairFront", DefaultRenderQueueHairFront.DefaultValue.ToString(), this));
-				RenderQueueHairFrontTextbox.ValueChanged.Subscribe(s =>
+				#region Renderer
+				var EnableShadowCastingModeToggle = new MakerToggle(category, "Shadow Casting Mode", EnableShadowCastingMode.Value, this);
+				ev.AddControl(EnableShadowCastingModeToggle);
+				EnableShadowCastingModeToggle.ValueChanged.Subscribe(Observer.Create<bool>(value =>
 				{
-					if (string.IsNullOrEmpty(s))
-						RenderQueueHairFrontTextbox.Value = DefaultRenderQueueHairFront.DefaultValue.ToString();
-					else
-						DefaultRenderQueueHairFront.Value = int.Parse(s);
-				});
-				var RenderQueueHairTextbox = ev.AddControl(new MakerTextbox(category, "Hair", DefaultRenderQueueHair.DefaultValue.ToString(), this));
-				RenderQueueHairTextbox.ValueChanged.Subscribe(s =>
+					if (MakerAPI.InsideAndLoaded)
+						EnableShadowCastingMode.Value = EnableShadowCastingModeToggle.Value;
+				}));
+				var ShadowCastingModeList = Enum.GetNames(typeof(ShadowCastingMode)).ToList();
+				var ShadowCastingModeDropdown = new MakerDropdown("Value", ShadowCastingModeList.ToArray(), category, (int)DefaultShadowCastingMode.Value, this);
+				ev.AddControl(ShadowCastingModeDropdown);
+				ShadowCastingModeDropdown.ValueChanged.Subscribe(Observer.Create<int>(value =>
 				{
-					if (string.IsNullOrEmpty(s))
-						RenderQueueHairTextbox.Value = DefaultRenderQueueHair.DefaultValue.ToString();
-					else
-						DefaultRenderQueueHair.Value = int.Parse(s);
-				});
+					if (MakerAPI.InsideAndLoaded)
+						DefaultShadowCastingMode.Value = (ShadowCastingMode)ShadowCastingModeDropdown.Value;
+				}));
+
+				var EnableReceiveShadowsToggle = new MakerToggle(category, "Receive Shadows", EnableReceiveShadows.Value, this);
+				ev.AddControl(EnableReceiveShadowsToggle);
+				EnableReceiveShadowsToggle.ValueChanged.Subscribe(Observer.Create<bool>(value =>
+				{
+					if (MakerAPI.InsideAndLoaded)
+						EnableReceiveShadows.Value = EnableReceiveShadowsToggle.Value;
+				}));
+				var ReceiveShadowsList = Enum.GetNames(typeof(ReceiveShadows)).ToList();
+				var ReceiveShadowsDropdown = new MakerDropdown("Value", ReceiveShadowsList.ToArray(), category, (int)DefaultReceiveShadows.Value, this);
+				ev.AddControl(ReceiveShadowsDropdown);
+				ReceiveShadowsDropdown.ValueChanged.Subscribe(Observer.Create<int>(value =>
+				{
+					if (MakerAPI.InsideAndLoaded)
+						DefaultReceiveShadows.Value = (ReceiveShadows) ReceiveShadowsDropdown.Value;
+				}));
 				#endregion
-
-				ev.AddControl(new MakerSeparator(category, this));
-
-				var btnApply = new MakerButton("Apply", category, this);
-				ev.AddControl(btnApply);
-				btnApply.OnClick.AddListener(delegate
-				{
-					ApplySettings();
-					ChaCustom.CustomBase.Instance.chaCtrl.ChangeCoordinateTypeAndReload(false);
-				});
-
-				ev.AddSubCategory(category);
 			};
 		}
 
@@ -325,7 +344,7 @@ namespace MaterialEditorBatchSettings
 		{
 			if (gameObj == null)
 			{
-				Logger.LogWarning($"slot[{slot + 1:00}] GameObject is null");
+				Logger.LogWarning($"{objectType} Slot{slot + 1:00} GameObject is null");
 				return;
 			}
 
@@ -362,11 +381,22 @@ namespace MaterialEditorBatchSettings
 					}
 
 					if (EnableRimV.Value)
+					{
 						if (mat.HasProperty("_rimV"))
 							pluginCtrl.SetMaterialFloatProperty(slot, objectType, mat, "rimV", DefaultRimV.Value, gameObj);
-					if (EnableRimPower.Value)
+					}
+
+					if (EnableRimPower.Value || EnableIBLRimPower.Value)
+					{
 						if (mat.HasProperty("_rimpower"))
-							pluginCtrl.SetMaterialFloatProperty(slot, objectType, mat, "rimpower", DefaultRimPower.Value, gameObj);
+						{
+							string shaderName = pluginCtrl.GetMaterialShader(slot, objectType, mat, gameObj);
+							if (mat.shader.name.StartsWith("IBL") || (!shaderName.IsNullOrEmpty() && shaderName.StartsWith("IBL")))
+								pluginCtrl.SetMaterialFloatProperty(slot, objectType, mat, "rimpower", DefaultIBLRimPower.Value, gameObj);
+							else
+								pluginCtrl.SetMaterialFloatProperty(slot, objectType, mat, "rimpower", DefaultRimPower.Value, gameObj);
+						}
+					}
 
 					if (EnableSpeclarHeight.Value)
 						if (mat.HasProperty("_SpeclarHeight"))
@@ -387,23 +417,10 @@ namespace MaterialEditorBatchSettings
 			}
 		}
 
-		internal enum ShadowCastingMode
-		{
-			Off,
-			On,
-			TwoSided,
-			ShadowsOnly,
-		}
-
 		internal enum ReceiveShadows
 		{
 			Off,
 			On,
-		}
-
-		internal sealed class ConfigurationManagerAttributes
-		{
-			public int? Order;
 		}
 	}
 }

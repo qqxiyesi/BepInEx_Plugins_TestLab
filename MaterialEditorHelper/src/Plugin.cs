@@ -26,12 +26,12 @@ namespace MaterialEditorHelper
 	[BepInProcess("Koikatsu Party")]
 	[BepInPlugin(GUID, PluginName, Version)]
 	[BepInDependency("marco.kkapi")]
-	[BepInDependency("com.deathweasel.bepinex.materialeditor", "3.0")]
-	public class MaterialEditorHelper : BaseUnityPlugin
+	[BepInDependency("com.deathweasel.bepinex.materialeditor", "3.1.4")]
+	public partial class MaterialEditorHelper : BaseUnityPlugin
 	{
 		public const string GUID = "madevil.kk.meh";
 		public const string PluginName = "Material Editor Helper";
-		public const string Version = "1.1.0.0";
+		public const string Version = "1.3.0.0";
 
 		internal static new ManualLogSource Logger;
 		internal static MaterialEditorHelper Instance;
@@ -241,39 +241,7 @@ namespace MaterialEditorHelper
 
 				ev.AddControl(new MakerSeparator(category, this));
 
-				ev.AddControl(new MakerText("TextureDictionary", category, this));
-
-				ev.AddControl(new MakerButton("Export Texture", category, this)).OnClick.AddListener(delegate
-				{
-					Dictionary<int, TextureContainer> TextureDictionary = Traverse.Create(pluginCtrl).Field("TextureDictionary").GetValue<Dictionary<int, TextureContainer>>();
-					string now = $"{DateTime.Now:yyyy-MM-dd-HH-mm-ss}";
-					string ExportPath = Path.Combine(MaterialEditorAPI.MaterialEditorPluginBase.ExportPath, now);
-					Directory.CreateDirectory(ExportPath);
-
-					int i = 0;
-					foreach (KeyValuePair<int, TextureContainer> x in TextureDictionary)
-					{
-						Texture2D tex = x.Value.Texture;
-						string filename = Path.Combine(ExportPath, $"{x.Key}_{tex.width}x{tex.height}.png");
-						Traverse.Create(MaterialEditorAPI.MaterialEditorPluginBase.Instance.GetType()).Method("SaveTex", new object[] { tex, filename, RenderTextureFormat.Default, RenderTextureReadWrite.Default }).GetValue();
-						i++;
-						Logger.LogInfo($"Texture exported: {filename}");
-					}
-					Logger.LogMessage($"Total {i} files exported to {ExportPath}");
-
-					List<MaterialTextureProperty> MaterialTexturePropertyList = Traverse.Create(pluginCtrl).Field("MaterialTexturePropertyList").GetValue<List<MaterialTextureProperty>>();
-					List<MaterialTextureProperty> data = MaterialTexturePropertyList
-						.Where(x => x.TexID != null)
-						.OrderBy(x => x.TexID)
-						.ThenBy(x => x.ObjectType)
-						.ThenBy(x => x.CoordinateIndex)
-						.ThenBy(x => x.Slot)
-						.ThenBy(x => x.MaterialName)
-						.ThenBy(x => x.Property)
-						.ToList();
-					string json = JSONSerializer.Serialize(data.GetType(), data, true);
-					File.WriteAllText(Path.Combine(ExportPath, "List.json"), json);
-				});
+				TextureDictionaryUI(ev, category);
 
 				ev.AddControl(new MakerSeparator(category, this));
 
@@ -298,7 +266,9 @@ namespace MaterialEditorHelper
 			var data = (from row in list
 						orderby Traverse.Create(row).Field("ObjectType").GetValue<ObjectType>(),
 						Traverse.Create(row).Field("CoordinateIndex").GetValue<int>(),
-						Traverse.Create(row).Field("Slot").GetValue<int>()
+						Traverse.Create(row).Field("Slot").GetValue<int>(),
+						Traverse.Create(row).Field("MaterialName").GetValue<string>(),
+						Traverse.Create(row).Field("Property").GetValue<string>()
 						select row).ToList();
 			return data;
 		}
